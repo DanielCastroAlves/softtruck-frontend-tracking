@@ -8,7 +8,6 @@ import {
   useMapEvents,
 } from "react-leaflet";
 import { type LatLngExpression } from "leaflet";
-import { Slider } from "@mui/material";
 import { point as turfPoint, lineString } from "@turf/helpers";
 import along from "@turf/along";
 import bearing from "@turf/bearing";
@@ -17,13 +16,15 @@ import { useGps } from "../../contexts/GpsContext";
 import { getRouteByIndex } from "../../services/useRouteData";
 import Car from "../Car/Car";
 import styles from "./MapView.module.scss";
+import DashboardPanel from "../Dashboard/DashboardPanel";
 
-// 🔁 Suavização do ângulo
+// 🔁 Suavização de ângulo
 function smoothAngle(prev: number, next: number, factor = 0.2) {
   const diff = ((((next - prev) % 360) + 540) % 360) - 180;
   return (prev + diff * factor + 360) % 360;
 }
 
+// 🚫 Parar follow quando o usuário mexer no mapa
 function StopFollowOnZoom({ onStop }: { onStop: () => void }) {
   useMapEvents({
     zoomstart: onStop,
@@ -32,6 +33,7 @@ function StopFollowOnZoom({ onStop }: { onStop: () => void }) {
   return null;
 }
 
+// 🎯 Seguir o carro no mapa
 function FollowCarControl({
   position,
   followCar,
@@ -49,14 +51,10 @@ function FollowCarControl({
 }
 
 export default function MapView() {
-  const { selectedRouteIndex } = useGps();
+  const { selectedRouteIndex, setSelectedRouteIndex } = useGps();
   const route = getRouteByIndex(selectedRouteIndex);
 
   const [speedKmh, setSpeedKmh] = useState(10);
-  const handleSpeedChange = (_: any, value: number | number[]) => {
-    setSpeedKmh(Array.isArray(value) ? value[0] : value);
-  };
-
   const [followCar, setFollowCar] = useState(true);
   const [carPosition, setCarPosition] = useState<[number, number] | null>(null);
   const [carAngle, setCarAngle] = useState(0);
@@ -67,9 +65,9 @@ export default function MapView() {
   const prevTimeRef = useRef<number | null>(null);
   const angleRef = useRef(0);
   const totalDistanceRef = useRef(0);
-  const routeLineRef = useRef<any>(null); // turf LineString
+  const routeLineRef = useRef<any>(null);
 
-  // 🧭 Primeiro efeito: busca e prepara a rota snapada
+  // 📡 Carregar e preparar a rota
   useEffect(() => {
     if (!route) return;
 
@@ -79,7 +77,9 @@ export default function MapView() {
 
     if (rawPoints.length < 2) return;
 
-    const coordsParam = rawPoints.map(([lon, lat]) => `${lon},${lat}`).join(";");
+    const coordsParam = rawPoints
+      .map(([lon, lat]) => `${lon},${lat}`)
+      .join(";");
 
     fetch(
       `https://router.project-osrm.org/route/v1/driving/${coordsParam}?overview=full&geometries=geojson`
@@ -101,7 +101,7 @@ export default function MapView() {
       });
   }, [route]);
 
-  // 🎬 Segundo efeito: animação baseada em speedKmh
+  // 🚗 Animar o carro ao longo da rota
   useEffect(() => {
     if (!routeLineRef.current) return;
 
@@ -110,7 +110,7 @@ export default function MapView() {
       const delta = (ts - prevTimeRef.current) / 1000;
       prevTimeRef.current = ts;
 
-      const speed = speedKmh / 3600; // km/s
+      const speed = speedKmh / 3600;
       distanceRef.current += speed * delta;
 
       if (distanceRef.current > totalDistanceRef.current) {
@@ -153,32 +153,9 @@ export default function MapView() {
 
   const center: LatLngExpression = roadCoords[0] || [-23.963214, -46.28054];
 
-  return (
-    <div className={styles.mapContainer}>
-      <div
-        style={{
-          position: "absolute",
-          top: 10,
-          left: 10,
-          zIndex: 1000,
-          background: "rgba(255,255,255,0.9)",
-          padding: 8,
-          borderRadius: 4,
-        }}
-      >
-        <div style={{ marginBottom: 8 }}>
-          <label>Velocidade: {speedKmh} km/h</label>
-          <Slider
-            min={1}
-            max={300}
-            value={speedKmh}
-            onChange={handleSpeedChange}
-            style={{ width: 180, marginTop: 4 }}
-          />
-        </div>
-        <button onClick={() => setFollowCar(true)}>🔁 Centralizar</button>
-      </div>
-
+return (
+  <div className={styles.wrapper}>
+    <div className={styles.mapArea}>
       <MapContainer
         center={center}
         zoom={17}
@@ -197,11 +174,29 @@ export default function MapView() {
         <StopFollowOnZoom onStop={() => setFollowCar(false)} />
 
         {carPosition && (
-          <FollowCarControl position={carPosition} followCar={followCar} />
+          <>
+            <FollowCarControl position={carPosition} followCar={followCar} />
+            <Car position={carPosition} angle={carAngle} />
+          </>
         )}
-
-        {carPosition && <Car position={carPosition} angle={carAngle} />}
       </MapContainer>
     </div>
-  );
+
+    <div className={styles.dashboardArea}>
+      <DashboardPanel
+        speedKmh={speedKmh}
+        onSpeedChange={(_: Event, val: number | number[]) =>
+          setSpeedKmh(Array.isArray(val) ? val[0] : val)
+        }
+        currentRouteIndex={selectedRouteIndex}
+        totalRoutes={5}
+        onNextRoute={() => {
+          setSelectedRouteIndex((selectedRouteIndex + 1) % 5);
+        }}
+        onCenterMap={() => setFollowCar(true)}
+      />
+    </div>
+  </div>
+);
+
 }
