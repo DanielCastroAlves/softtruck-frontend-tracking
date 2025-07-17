@@ -1,111 +1,179 @@
 // src/components/MapView/MapView.tsx
-import { MapContainer, TileLayer, Polyline, useMap } from "react-leaflet";
+import { useEffect, useRef, useState } from "react";
+import {
+  MapContainer,
+  TileLayer,
+  Polyline,
+  useMap,
+  useMapEvents,
+} from "react-leaflet";
 import { latLngBounds, type LatLngExpression } from "leaflet";
+import { Slider } from "@mui/material";
+import { point as turfPoint, lineString } from "@turf/helpers";
+import along from "@turf/along";
+import bearing from "@turf/bearing";
+import length from "@turf/length";
 import { useGps } from "../../contexts/GpsContext";
 import { getRouteByIndex } from "../../services/useRouteData";
 import Car from "../Car/Car";
 import styles from "./MapView.module.scss";
-import { useEffect, useState } from "react";
-import bearing from "@turf/bearing";
 
-// centraliza e ajusta zoom no carro sempre que ele se move
-function FollowCar({ position }: { position: LatLngExpression }) {
-  const map = useMap();
-  useEffect(() => {
-    // define view no carro com zoom 17 (ajuste como quiser)
-    map.setView(position, 17, { animate: true });
-  }, [position, map]);
+// 🔁 Suavização do ângulo
+function smoothAngle(prev: number, next: number, factor = 0.2) {
+  const diff = ((((next - prev) % 360) + 540) % 360) - 180;
+  return (prev + diff * factor + 360) % 360;
+}
+
+// componente que pára de seguir o carro quando o usuário dá zoom/arrasta
+function StopFollowOnZoom({ onStop }: { onStop: () => void }) {
+  useMapEvents({
+    zoomstart: onStop,
+    dragstart: onStop,
+  });
   return null;
 }
 
-// desenha a rota “snapada” e faz o fitBounds inicial
-function SnappedRoute({ points }: { points: LatLngExpression[] }) {
+// componente que centraliza a câmera no carro (apenas se followCar=true)
+function FollowCarControl({
+  position,
+  followCar,
+}: {
+  position: LatLngExpression;
+  followCar: boolean;
+}) {
   const map = useMap();
   useEffect(() => {
-    if (points.length > 1) {
-      const bounds = latLngBounds(points);
-      map.fitBounds(bounds, { padding: [20, 20] });
+    if (followCar) {
+      map.setView(position, 17, { animate: true });
     }
-  }, [points, map]);
-  return points.length > 0 ? (
-    <Polyline positions={points} color="blue" weight={4} />
-  ) : null;
+  }, [position, followCar, map]);
+  return null;
 }
 
 export default function MapView() {
   const { selectedRouteIndex } = useGps();
   const route = getRouteByIndex(selectedRouteIndex);
 
-  const [roadCoords, setRoadCoords] = useState<[number, number][]>([]);
-  const [carPosition, setCarPosition] = useState<[number, number] | null>(null);
+  // slider de velocidade (km/h)
+  const [speedKmh, setSpeedKmh] = useState(10);
+  const handleSpeedChange = (_: any, value: number | number[]) => {
+    setSpeedKmh(Array.isArray(value) ? value[0] : value);
+  };
+
+  // flag de follow automático
+  const [followCar, setFollowCar] = useState(true);
+
+  const [carPosition, setCarPosition] = useState<[number, number] | null>(
+    null
+  );
   const [carAngle, setCarAngle] = useState(0);
-  const [carIndex, setCarIndex] = useState(0);
+  const [roadCoords, setRoadCoords] = useState<[number, number][]>([]);
 
-  // 1) pega a rota do OSRM
+  const animationRef = useRef<number | null>(null);
+  const distanceRef = useRef(0);
+  const prevTimeRef = useRef<number | null>(null);
+  const angleRef = useRef(0);
+  const totalDistanceRef = useRef(0);
+
+  // prepara rota e animação
   useEffect(() => {
-    if (!route) return setRoadCoords([]);
+    if (!route) return;
 
-    const moving = route.gps.filter((p) => p.speed! > 0.5);
-    if (moving.length < 2) return setRoadCoords([]);
+    const gpsPoints = route.gps
+      .filter((p) => p.speed! > 0.5)
+      .map((p) => [p.longitude, p.latitude]) as [number, number][];
 
-    const coordsParam = moving.map((p) => `${p.longitude},${p.latitude}`).join(";");
-    const url = `https://router.project-osrm.org/route/v1/driving/${coordsParam}?overview=full&geometries=geojson`;
+    if (gpsPoints.length < 2) return;
 
-    fetch(url)
-      .then((r) => r.json())
-      .then((data) => {
-        const snapped: [number, number][] =
-          data.routes?.[0]?.geometry?.coordinates || [];
-        const pts = snapped.map(([lng, lat]) => [lat, lng] as [number, number]);
-        setRoadCoords(pts);
-        // inicia carro
-        if (pts.length > 1) {
-          setCarIndex(0);
-          setCarPosition(pts[0]);
-          setCarAngle(
-            bearing(
-              { type: "Point", coordinates: [pts[0][1], pts[0][0]] },
-              { type: "Point", coordinates: [pts[1][1], pts[1][0]] }
-            )
-          );
-        }
-      })
-      .catch(() => setRoadCoords([]));
-  }, [route]);
+    const routeLine = lineString(gpsPoints);
+    const totalDist = length(routeLine, { units: "kilometers" });
+    totalDistanceRef.current = totalDist;
 
-  // 2) anima o carro ao longo dos pontos
-  useEffect(() => {
-    if (roadCoords.length < 2) return;
-    const iv = setInterval(() => {
-      setCarIndex((i) =>
-        i < roadCoords.length - 2 ? i + 1 : (clearInterval(iv), i)
+    setRoadCoords(gpsPoints.map(([lng, lat]) => [lat, lng]));
+    distanceRef.current = 0;
+    prevTimeRef.current = null;
+    angleRef.current = 0;
+
+    // animação
+    const animate = (ts: number) => {
+      if (!prevTimeRef.current) prevTimeRef.current = ts;
+      const delta = (ts - prevTimeRef.current) / 1000;
+      prevTimeRef.current = ts;
+
+      // usa velocidade do slider
+      const speed = speedKmh / 3600; // km/s
+      distanceRef.current += speed * delta;
+
+      if (distanceRef.current > totalDist) {
+        cancelAnimationFrame(animationRef.current!);
+        return;
+      }
+
+      const current = along(routeLine, distanceRef.current, {
+        units: "kilometers",
+      });
+      const prev = along(
+        routeLine,
+        Math.max(distanceRef.current - 0.0001, 0),
+        { units: "kilometers" }
       );
-    }, 100);
-    return () => clearInterval(iv);
-  }, [roadCoords]);
+      const next = along(
+        routeLine,
+        Math.min(distanceRef.current + 0.0001, totalDist),
+        { units: "kilometers" }
+      );
 
-  // 3) atualiza posição+ângulo a cada índice
-  useEffect(() => {
-    if (roadCoords.length < 2 || carIndex >= roadCoords.length - 1) return;
-    const cur = roadCoords[carIndex],
-      nxt = roadCoords[carIndex + 1];
-    setCarPosition(cur);
-    setCarAngle(
-      bearing(
-        { type: "Point", coordinates: [cur[1], cur[0]] },
-        { type: "Point", coordinates: [nxt[1], nxt[0]] }
-      )
-    );
-  }, [carIndex, roadCoords]);
+      const rawAngle = bearing(
+        turfPoint(prev.geometry.coordinates),
+        turfPoint(next.geometry.coordinates)
+      );
+      angleRef.current = smoothAngle(angleRef.current, rawAngle);
 
-  // ponto inicial (fallback)
+      const [lng, lat] = current.geometry.coordinates;
+      setCarPosition([lat, lng]);
+      setCarAngle(angleRef.current);
+
+      animationRef.current = requestAnimationFrame(animate);
+    };
+
+    animationRef.current = requestAnimationFrame(animate);
+    return () => {
+      if (animationRef.current) cancelAnimationFrame(animationRef.current);
+    };
+  }, [route, speedKmh]);
+
   const center: LatLngExpression = roadCoords[0] || [-23.963214, -46.28054];
 
   return (
     <div className={styles.mapContainer}>
+      {/* controles */}
+      <div
+        style={{
+          position: "absolute",
+          top: 10,
+          left: 10,
+          zIndex: 1000,
+          background: "rgba(255,255,255,0.9)",
+          padding: 8,
+          borderRadius: 4,
+        }}
+      >
+        <div style={{ marginBottom: 8 }}>
+          <label>Velocidade: {speedKmh} km/h</label>
+          <Slider
+            min={1}
+            max={100}
+            value={speedKmh}
+            onChange={handleSpeedChange}
+            style={{ width: 180, marginTop: 4 }}
+          />
+        </div>
+        <button onClick={() => setFollowCar(true)}>🔁 Centralizar</button>
+      </div>
+
       <MapContainer
         center={center}
-        zoom={17}         
+        zoom={17}
         scrollWheelZoom
         className={styles.map}
       >
@@ -113,8 +181,20 @@ export default function MapView() {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution="&copy; OpenStreetMap contributors"
         />
-        <SnappedRoute points={roadCoords} />
-        {carPosition && <FollowCar position={carPosition} />}
+
+        {roadCoords.length > 1 && (
+          <Polyline positions={roadCoords} color="blue" weight={4} />
+        )}
+
+        {/* para parar o follow quando o usuário zoom/arrasta */}
+        <StopFollowOnZoom onStop={() => setFollowCar(false)} />
+
+        {/* somente segue o carro se followCar === true */}
+        {carPosition && (
+          <FollowCarControl position={carPosition} followCar={followCar} />
+        )}
+
+        {/* marcador do carro */}
         {carPosition && <Car position={carPosition} angle={carAngle} />}
       </MapContainer>
     </div>
