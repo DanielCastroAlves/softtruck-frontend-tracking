@@ -4,7 +4,7 @@ import "./Car.scss";
 
 export interface CarProps {
   position: [number, number];
-  angle: number;
+  angle: number; // Em graus, vindo do JSON ou calculado via bearing()
 }
 
 const Car = ({ position, angle }: CarProps) => {
@@ -12,11 +12,14 @@ const Car = ({ position, angle }: CarProps) => {
   const frameWidth = 152;
   const frameHeight = 151;
 
-  const scale = 0.5; 
+  const scale = 0.5;
   const iconW = frameWidth * scale;
   const iconH = frameHeight * scale;
+
+  // Corrige o offset de direção (sprite começa apontando para o sul)
+  const correctedAngle = (angle + 180 + 360) % 360; // Garante valor entre 0-359
   const degreesPerFrame = 360 / totalFrames;
-  const frameIndex = Math.round(angle / degreesPerFrame) % totalFrames;
+  const frameIndex = Math.round(correctedAngle / degreesPerFrame) % totalFrames;
 
   const icon = L.divIcon({
     className: "car-icon",
