@@ -1,5 +1,15 @@
-// src/components/HUD/HUD.tsx
-import { Card, CardContent, Typography, Box } from "@mui/material";
+import {
+  Card,
+  CardContent,
+  Typography,
+  Box,
+  Divider,
+  Stack,
+} from "@mui/material";
+import PauseCircleOutlineIcon from "@mui/icons-material/PauseCircleOutline";
+import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutline";
+import SpeedIcon from "@mui/icons-material/Speed";
+import ExploreIcon from "@mui/icons-material/Explore";
 
 interface HUDProps {
   tempoParado: number;
@@ -21,26 +31,49 @@ export default function HUD({
   angulo,
 }: HUDProps) {
   return (
-    <Card elevation={2}>
+    <Card elevation={3} sx={{ mt: 2 }}>
       <CardContent>
         <Typography variant="h6" gutterBottom>
-          📊 Status do Veículo
+          Status do Veículo
         </Typography>
 
-        <Box display="flex" flexDirection="column" gap={1}>
-          <Typography variant="body2">
-            ⏸ Tempo parado: <strong>{formatElapsed(tempoParado)}</strong>
-          </Typography>
-          <Typography variant="body2">
-            ▶️ Tempo rodando: <strong>{formatElapsed(tempoRodando)}</strong>
-          </Typography>
-          <Typography variant="body2">
-            🚗 Velocidade atual: <strong>{velocidade.toFixed(1)} km/h</strong>
-          </Typography>
-          <Typography variant="body2">
-            🧭 Ângulo de direção: <strong>{angulo.toFixed(1)}°</strong>
-          </Typography>
-        </Box>
+        <Divider sx={{ mb: 2 }} />
+
+        <Stack spacing={1}>
+          <Box display="flex" alignItems="center" gap={1}>
+            <PauseCircleOutlineIcon />
+            <Typography variant="body2" sx={{ fontWeight: 500, minWidth: 130 }}>
+              Tempo parado:
+            </Typography>
+            <Typography variant="body2">{formatElapsed(tempoParado)}</Typography>
+          </Box>
+
+          <Box display="flex" alignItems="center" gap={1}>
+            <PlayCircleOutlineIcon />
+            <Typography variant="body2" sx={{ fontWeight: 500, minWidth: 130 }}>
+              Tempo rodando:
+            </Typography>
+            <Typography variant="body2">{formatElapsed(tempoRodando)}</Typography>
+          </Box>
+
+          <Box display="flex" alignItems="center" gap={1}>
+            <SpeedIcon />
+            <Typography variant="body2" sx={{ fontWeight: 500, minWidth: 130 }}>
+              Velocidade atual:
+            </Typography>
+            <Typography variant="body2">
+              {velocidade.toFixed(1)} km/h
+            </Typography>
+          </Box>
+
+          <Box display="flex" alignItems="center" gap={1}>
+            <ExploreIcon />
+            <Typography variant="body2" sx={{ fontWeight: 500, minWidth: 130 }}>
+              Ângulo de direção:
+            </Typography>
+            <Typography variant="body2">{angulo.toFixed(1)}°</Typography>
+          </Box>
+        </Stack>
       </CardContent>
     </Card>
   );

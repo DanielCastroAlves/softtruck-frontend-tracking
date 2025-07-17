@@ -1,3 +1,6 @@
+// src/components/Dashboard/RouteSelector.tsx
+import { Box, Typography, Button } from "@mui/material";
+
 interface RouteSelectorProps {
   current: number;
   total: number;
@@ -6,11 +9,13 @@ interface RouteSelectorProps {
 
 export default function RouteSelector({ current, total, onNext }: RouteSelectorProps) {
   return (
-    <div style={{ marginBottom: 8 }}>
-      <span>Rota: ({current + 1}/{total})</span>
-      <button onClick={onNext} style={{ marginLeft: 8 }}>
+    <Box mb={2} display="flex" alignItems="center" gap={1}>
+      <Typography variant="subtitle2">
+        Rota: ({current + 1}/{total})
+      </Typography>
+      <Button variant="outlined" size="small" onClick={onNext}>
         Próxima
-      </button>
-    </div>
+      </Button>
+    </Box>
   );
 }

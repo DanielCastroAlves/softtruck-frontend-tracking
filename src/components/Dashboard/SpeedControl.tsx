@@ -1,4 +1,5 @@
-import { Slider } from "@mui/material";
+// src/components/Dashboard/SpeedControl.tsx
+import { Box, Slider, Typography } from "@mui/material";
 
 interface SpeedControlProps {
   value: number;
@@ -7,15 +8,17 @@ interface SpeedControlProps {
 
 export default function SpeedControl({ value, onChange }: SpeedControlProps) {
   return (
-    <div style={{ marginBottom: 8 }}>
-      <label>Velocidade: {value} km/h</label>
+    <Box mb={2}>
+      <Typography variant="subtitle2" gutterBottom>
+        Velocidade: {value} km/h
+      </Typography>
       <Slider
         min={1}
         max={300}
         value={value}
         onChange={onChange}
-        style={{ width: 180, marginTop: 4 }}
+        valueLabelDisplay="auto"
       />
-    </div>
+    </Box>
   );
 }

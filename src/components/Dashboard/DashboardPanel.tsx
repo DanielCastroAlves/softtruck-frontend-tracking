@@ -1,9 +1,10 @@
-import styles from "./DashboardPanel.module.scss";
+// src/components/Dashboard/DashboardPanel.tsx
+import { Stack, Divider, Paper } from "@mui/material";
 import SpeedControl from "./SpeedControl";
 import RouteSelector from "./RouteSelector";
 import CenterMapButton from "./CenterMapButton";
-import HUD from "../HUD/HUD";
 import SimulationControls from "./SimulationControls";
+import HUD from "../HUD/HUD";
 
 interface DashboardPanelProps {
   speedKmh: number;
@@ -35,36 +36,19 @@ export default function DashboardPanel({
   onReset,
 }: DashboardPanelProps) {
   return (
-    <div className={styles.panel}>
-      <div className={styles.section}>
+    <Paper elevation={3} sx={{ p: 2, height: "100%", display: "flex", flexDirection: "column", gap: 2 }}>
+      <Stack spacing={2} divider={<Divider flexItem />}>
         <SpeedControl value={speedKmh} onChange={onSpeedChange} />
-      </div>
-
-      <div className={styles.section}>
-        <RouteSelector
-          current={currentRouteIndex}
-          total={totalRoutes}
-          onNext={onNextRoute}
-        />
-      </div>
-
-      <div className={styles.section}>
+        <RouteSelector current={currentRouteIndex} total={totalRoutes} onNext={onNextRoute} />
         <CenterMapButton onClick={onCenterMap} />
-      </div>
-
-      <div className={styles.section}>
-        <SimulationControls
-          onPlay={onPlay}
-          onPause={onPause}
-          onReset={onReset}
+        <SimulationControls onPlay={onPlay} onPause={onPause} onReset={onReset} />
+        <HUD
+          tempoParado={tempoParado}
+          tempoRodando={tempoRodando}
+          velocidade={speedKmh}
+          angulo={angulo}
         />
-      </div>
-      <HUD
-        tempoParado={tempoParado}
-        tempoRodando={tempoRodando}
-        velocidade={speedKmh}
-        angulo={angulo}
-      />
-    </div>
+      </Stack>
+    </Paper>
   );
 }

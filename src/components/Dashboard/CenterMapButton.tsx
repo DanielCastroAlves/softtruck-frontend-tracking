@@ -9,10 +9,10 @@ interface CenterMapButtonProps {
 export default function CenterMapButton({ onClick }: CenterMapButtonProps) {
   return (
     <Button
-      onClick={onClick}
       variant="outlined"
-      startIcon={<MyLocationIcon />}
       fullWidth
+      startIcon={<MyLocationIcon />}
+      onClick={onClick}
     >
       Centralizar Mapa
     </Button>
