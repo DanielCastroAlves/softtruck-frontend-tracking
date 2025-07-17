@@ -1,10 +1,10 @@
 // src/components/Dashboard/DashboardPanel.tsx
 import { Stack, Divider, Paper } from "@mui/material";
-import SpeedControl from "./SpeedControl";
 import RouteSelector from "./RouteSelector";
 import CenterMapButton from "./CenterMapButton";
 import SimulationControls from "./SimulationControls";
 import HUD from "../HUD/HUD";
+import SpeedControlPanel from "./SpeedControlPanel";
 
 interface DashboardPanelProps {
   speedKmh: number;
@@ -36,12 +36,29 @@ export default function DashboardPanel({
   onReset,
 }: DashboardPanelProps) {
   return (
-    <Paper elevation={3} sx={{ p: 2, height: "100%", display: "flex", flexDirection: "column", gap: 2 }}>
+    <Paper
+      elevation={3}
+      sx={{
+        p: 2,
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        gap: 2,
+      }}
+    >
       <Stack spacing={2} divider={<Divider flexItem />}>
-        <SpeedControl value={speedKmh} onChange={onSpeedChange} />
-        <RouteSelector current={currentRouteIndex} total={totalRoutes} onNext={onNextRoute} />
+        <SpeedControlPanel value={speedKmh} onChange={onSpeedChange} />
+        <RouteSelector
+          current={currentRouteIndex}
+          total={totalRoutes}
+          onNext={onNextRoute}
+        />
         <CenterMapButton onClick={onCenterMap} />
-        <SimulationControls onPlay={onPlay} onPause={onPause} onReset={onReset} />
+        <SimulationControls
+          onPlay={onPlay}
+          onPause={onPause}
+          onReset={onReset}
+        />
         <HUD
           tempoParado={tempoParado}
           tempoRodando={tempoRodando}
