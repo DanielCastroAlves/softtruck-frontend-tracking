@@ -14,6 +14,9 @@ interface DashboardPanelProps {
   tempoParado: number;
   tempoRodando: number;
   angulo: number;
+  onPlay: () => void;
+  onPause: () => void;
+  onReset: () => void;
 }
 
 export default function DashboardPanel({
@@ -26,6 +29,9 @@ export default function DashboardPanel({
   tempoParado,
   tempoRodando,
   angulo,
+  onPlay,
+  onPause,
+  onReset,
 }: DashboardPanelProps) {
   return (
     <div className={styles.panel}>
@@ -43,6 +49,12 @@ export default function DashboardPanel({
 
       <div className={styles.section}>
         <CenterMapButton onClick={onCenterMap} />
+      </div>
+
+      <div className={styles.section}>
+        <button onClick={onPlay}>▶️ Play</button>
+        <button onClick={onPause}>⏸️ Pause</button>
+        <button onClick={onReset}>🔁 Reset</button>
       </div>
 
       <HUD

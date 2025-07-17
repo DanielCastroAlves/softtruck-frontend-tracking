@@ -1,4 +1,3 @@
-// src/components/MapView/MapView.tsx
 import { useEffect, useRef, useState } from "react";
 import {
   MapContainer,
@@ -18,13 +17,11 @@ import Car from "../Car/Car";
 import styles from "./MapView.module.scss";
 import DashboardPanel from "../Dashboard/DashboardPanel";
 
-// 🔁 Suavização de ângulo
 function smoothAngle(prev: number, next: number, factor = 0.2) {
   const diff = ((((next - prev) % 360) + 540) % 360) - 180;
   return (prev + diff * factor + 360) % 360;
 }
 
-// 🚫 Parar follow quando o usuário mexer no mapa
 function StopFollowOnZoom({ onStop }: { onStop: () => void }) {
   useMapEvents({
     zoomstart: onStop,
@@ -33,7 +30,6 @@ function StopFollowOnZoom({ onStop }: { onStop: () => void }) {
   return null;
 }
 
-// 🎯 Seguir o carro no mapa
 function FollowCarControl({
   position,
   followCar,
@@ -59,6 +55,8 @@ export default function MapView() {
   const [carPosition, setCarPosition] = useState<[number, number] | null>(null);
   const [carAngle, setCarAngle] = useState(0);
   const [roadCoords, setRoadCoords] = useState<[number, number][]>([]);
+  const [tempoParado, setTempoParado] = useState(0);
+  const [tempoRodando, setTempoRodando] = useState(0);
 
   const animationRef = useRef<number | null>(null);
   const distanceRef = useRef(0);
@@ -67,10 +65,8 @@ export default function MapView() {
   const totalDistanceRef = useRef(0);
   const routeLineRef = useRef<any>(null);
 
-  const [tempoParado, setTempoParado] = useState(0);
-  const [tempoRodando, setTempoRodando] = useState(0);
+  const center: LatLngExpression = roadCoords[0] || [-23.963214, -46.28054];
 
-  // 📡 Carregar e preparar a rota
   useEffect(() => {
     if (!route) return;
 
@@ -101,66 +97,86 @@ export default function MapView() {
         distanceRef.current = 0;
         prevTimeRef.current = null;
         angleRef.current = 0;
+
+        handleReset();
       });
   }, [route]);
 
-  // 🚗 Animar o carro ao longo da rota
-  useEffect(() => {
+  function animate(ts: number) {
     if (!routeLineRef.current) return;
 
-    const animate = (ts: number) => {
-      if (!prevTimeRef.current) prevTimeRef.current = ts;
-      const delta = (ts - prevTimeRef.current) / 1000;
-      prevTimeRef.current = ts;
+    if (!prevTimeRef.current) prevTimeRef.current = ts;
+    const delta = (ts - prevTimeRef.current) / 1000;
+    prevTimeRef.current = ts;
 
-      const speed = speedKmh / 3600;
-      distanceRef.current += speed * delta;
+    const speed = speedKmh / 3600;
+    distanceRef.current += speed * delta;
 
-      if (speedKmh < 2) {
-        setTempoParado((prev) => prev + delta);
-      } else {
-        setTempoRodando((prev) => prev + delta);
-      }
+    if (speedKmh < 2) {
+      setTempoParado((prev) => prev + delta);
+    } else {
+      setTempoRodando((prev) => prev + delta);
+    }
 
-      if (distanceRef.current > totalDistanceRef.current) {
-        cancelAnimationFrame(animationRef.current!);
-        return;
-      }
+    if (distanceRef.current > totalDistanceRef.current) {
+      cancelAnimationFrame(animationRef.current!);
+      animationRef.current = null;
+      return;
+    }
 
-      const curr = along(routeLineRef.current, distanceRef.current, {
-        units: "kilometers",
-      });
-      const prev = along(
-        routeLineRef.current,
-        Math.max(distanceRef.current - 0.0001, 0),
-        { units: "kilometers" }
-      );
-      const next = along(
-        routeLineRef.current,
-        Math.min(distanceRef.current + 0.0001, totalDistanceRef.current),
-        { units: "kilometers" }
-      );
+    const curr = along(routeLineRef.current, distanceRef.current, {
+      units: "kilometers",
+    });
+    const prev = along(
+      routeLineRef.current,
+      Math.max(distanceRef.current - 0.0001, 0),
+      { units: "kilometers" }
+    );
+    const next = along(
+      routeLineRef.current,
+      Math.min(distanceRef.current + 0.0001, totalDistanceRef.current),
+      { units: "kilometers" }
+    );
 
-      const rawAngle = bearing(
-        turfPoint(prev.geometry.coordinates),
-        turfPoint(next.geometry.coordinates)
-      );
-      angleRef.current = smoothAngle(angleRef.current, rawAngle);
+    const rawAngle = bearing(
+      turfPoint(prev.geometry.coordinates),
+      turfPoint(next.geometry.coordinates)
+    );
+    angleRef.current = smoothAngle(angleRef.current, rawAngle);
 
-      const [lng, lat] = curr.geometry.coordinates;
-      setCarPosition([lat, lng]);
-      setCarAngle(angleRef.current);
-
-      animationRef.current = requestAnimationFrame(animate);
-    };
+    const [lng, lat] = curr.geometry.coordinates;
+    setCarPosition([lat, lng]);
+    setCarAngle(angleRef.current);
 
     animationRef.current = requestAnimationFrame(animate);
-    return () => {
-      if (animationRef.current) cancelAnimationFrame(animationRef.current);
-    };
-  }, [speedKmh]);
+  }
 
-  const center: LatLngExpression = roadCoords[0] || [-23.963214, -46.28054];
+  function handlePlay() {
+    if (!animationRef.current) {
+      prevTimeRef.current = null;
+      animationRef.current = requestAnimationFrame(animate);
+    }
+  }
+
+  function handlePause() {
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+      animationRef.current = null;
+    }
+  }
+
+  function handleReset() {
+    distanceRef.current = 0;
+    prevTimeRef.current = null;
+    angleRef.current = 0;
+    setTempoParado(0);
+    setTempoRodando(0);
+    if (routeLineRef.current) {
+      const [lng, lat] = routeLineRef.current.geometry.coordinates[0];
+      setCarPosition([lat, lng]);
+      setCarAngle(0);
+    }
+  }
 
   return (
     <div className={styles.wrapper}>
@@ -199,13 +215,16 @@ export default function MapView() {
           }
           currentRouteIndex={selectedRouteIndex}
           totalRoutes={5}
-          onNextRoute={() => {
-            setSelectedRouteIndex((selectedRouteIndex + 1) % 5);
-          }}
+          onNextRoute={() =>
+            setSelectedRouteIndex((selectedRouteIndex + 1) % 5)
+          }
           onCenterMap={() => setFollowCar(true)}
           tempoParado={tempoParado}
           tempoRodando={tempoRodando}
           angulo={carAngle}
+          onPlay={handlePlay}
+          onPause={handlePause}
+          onReset={handleReset}
         />
       </div>
     </div>
