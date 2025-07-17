@@ -1,0 +1,21 @@
+{
+  "hud": {
+    "speed": {
+      "label": "Velocidad:"
+    },
+    "status": {
+      "title": "Estado del Vehículo",
+      "stoppedTime": "Tiempo detenido:",
+      "runningTime": "Tiempo en movimiento:",
+      "currentSpeed": "Velocidad actual:",
+      "angle": "Ángulo de dirección:"
+    }
+  },
+  "controls": {
+    "route": {
+      "label": "Ruta:",
+      "next": "SIGUIENTE"
+    },
+    "centerMap": "CENTRAR MAPA"
+  }
+}

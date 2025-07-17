@@ -1,5 +1,6 @@
 import { Box, Slider, Typography } from "@mui/material";
 import { PieChart, Pie, Cell } from "recharts";
+import { useTranslation } from "react-i18next";
 
 interface SpeedControlPanelProps {
   value: number;
@@ -11,7 +12,7 @@ const RADIAN = Math.PI / 180;
 const chartData = [
   { name: "Baixa", value: 100, color: "#4caf50" },
   { name: "Média", value: 100, color: "#ffc107" },
-  { name: "Alta", value: 100, color: "#f44336" },
+  { name: "Alta", value: 100, color: "#f44336" }
 ];
 
 function needle({
@@ -20,7 +21,7 @@ function needle({
   cy,
   iR,
   oR,
-  color,
+  color
 }: {
   value: number;
   data: typeof chartData;
@@ -30,7 +31,7 @@ function needle({
   oR: number;
   color: string;
 }) {
-  const ang = 180 * (1 - value / 300); // 300 é o valor máximo
+  const ang = 180 * (1 - value / 300);
   const length = (iR + 2 * oR) / 3;
   const sin = Math.sin(-RADIAN * ang);
   const cos = Math.cos(-RADIAN * ang);
@@ -45,26 +46,13 @@ function needle({
   const yp = y0 + length * sin;
 
   return [
-    <circle
-      key="needle-circle"
-      cx={x0}
-      cy={y0}
-      r={r}
-      fill={color}
-      stroke="none"
-    />,
-    <path
-      key="needle-path"
-      d={`M${xba},${yba} L${xbb},${ybb} L${xp},${yp} Z`}
-      fill={color}
-    />,
+    <circle key="needle-circle" cx={x0} cy={y0} r={r} fill={color} stroke="none" />,
+    <path key="needle-path" d={`M${xba},${yba} L${xbb},${ybb} L${xp},${yp} Z`} fill={color} />
   ];
 }
 
-export default function SpeedControlPanel({
-  value,
-  onChange,
-}: SpeedControlPanelProps) {
+export default function SpeedControlPanel({ value, onChange }: SpeedControlPanelProps) {
+  const { t } = useTranslation();
   const cx = 150;
   const cy = 100;
   const iR = 60;
@@ -73,7 +61,7 @@ export default function SpeedControlPanel({
   return (
     <Box>
       <Typography variant="subtitle2" gutterBottom>
-        Velocidade: {value} km/h
+        {t("hud.speed.label")} {value} km/h
       </Typography>
 
       <PieChart width={300} height={160}>
@@ -99,7 +87,7 @@ export default function SpeedControlPanel({
           cy,
           iR,
           oR,
-          color: "#333",
+          color: "#333"
         })}
       </PieChart>
 

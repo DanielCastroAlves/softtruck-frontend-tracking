@@ -51,7 +51,7 @@ export default function MapView() {
   const route = getRouteByIndex(selectedRouteIndex);
 
   const [speedKmh, setSpeedKmh] = useState(10);
-  const speedRef = useRef(speedKmh); // ✅ controle do valor atual
+  const speedRef = useRef(speedKmh); 
 
   const [followCar, setFollowCar] = useState(true);
   const [carPosition, setCarPosition] = useState<[number, number] | null>(null);
@@ -70,7 +70,7 @@ export default function MapView() {
   const center: LatLngExpression = roadCoords[0] || [-23.963214, -46.28054];
 
   useEffect(() => {
-    speedRef.current = speedKmh; // ✅ atualiza o valor da velocidade sempre que muda
+    speedRef.current = speedKmh; 
   }, [speedKmh]);
 
   useEffect(() => {
@@ -115,7 +115,7 @@ export default function MapView() {
     const delta = (ts - prevTimeRef.current) / 1000;
     prevTimeRef.current = ts;
 
-    const speed = speedRef.current / 3600; // ✅ valor dinâmico da velocidade
+    const speed = speedRef.current / 3600; 
     distanceRef.current += speed * delta;
 
     if (speedRef.current < 2) {

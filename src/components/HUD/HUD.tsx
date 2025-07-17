@@ -4,12 +4,13 @@ import {
   Typography,
   Box,
   Divider,
-  Stack,
+  Stack
 } from "@mui/material";
 import PauseCircleOutlineIcon from "@mui/icons-material/PauseCircleOutline";
 import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutline";
 import SpeedIcon from "@mui/icons-material/Speed";
 import ExploreIcon from "@mui/icons-material/Explore";
+import { useTranslation } from "react-i18next";
 
 interface HUDProps {
   tempoParado: number;
@@ -28,13 +29,15 @@ export default function HUD({
   tempoParado,
   tempoRodando,
   velocidade,
-  angulo,
+  angulo
 }: HUDProps) {
+  const { t } = useTranslation();
+
   return (
     <Card elevation={3} sx={{ mt: 2 }}>
       <CardContent>
         <Typography variant="h6" gutterBottom>
-          Status do Veículo
+          {t("hud.status.title")}
         </Typography>
 
         <Divider sx={{ mb: 2 }} />
@@ -43,7 +46,7 @@ export default function HUD({
           <Box display="flex" alignItems="center" gap={1}>
             <PauseCircleOutlineIcon />
             <Typography variant="body2" sx={{ fontWeight: 500, minWidth: 130 }}>
-              Tempo parado:
+              {t("hud.status.stoppedTime")}
             </Typography>
             <Typography variant="body2">{formatElapsed(tempoParado)}</Typography>
           </Box>
@@ -51,7 +54,7 @@ export default function HUD({
           <Box display="flex" alignItems="center" gap={1}>
             <PlayCircleOutlineIcon />
             <Typography variant="body2" sx={{ fontWeight: 500, minWidth: 130 }}>
-              Tempo rodando:
+              {t("hud.status.runningTime")}
             </Typography>
             <Typography variant="body2">{formatElapsed(tempoRodando)}</Typography>
           </Box>
@@ -59,7 +62,7 @@ export default function HUD({
           <Box display="flex" alignItems="center" gap={1}>
             <SpeedIcon />
             <Typography variant="body2" sx={{ fontWeight: 500, minWidth: 130 }}>
-              Velocidade atual:
+              {t("hud.status.currentSpeed")}
             </Typography>
             <Typography variant="body2">
               {velocidade.toFixed(1)} km/h
@@ -69,7 +72,7 @@ export default function HUD({
           <Box display="flex" alignItems="center" gap={1}>
             <ExploreIcon />
             <Typography variant="body2" sx={{ fontWeight: 500, minWidth: 130 }}>
-              Ângulo de direção:
+              {t("hud.status.angle")}
             </Typography>
             <Typography variant="body2">{angulo.toFixed(1)}°</Typography>
           </Box>

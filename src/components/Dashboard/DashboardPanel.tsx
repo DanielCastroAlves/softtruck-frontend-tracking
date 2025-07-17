@@ -1,4 +1,3 @@
-// src/components/Dashboard/DashboardPanel.tsx
 import { Stack, Divider, Paper } from "@mui/material";
 import RouteSelector from "./RouteSelector";
 import CenterMapButton from "./CenterMapButton";
