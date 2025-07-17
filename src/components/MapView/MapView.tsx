@@ -67,6 +67,9 @@ export default function MapView() {
   const totalDistanceRef = useRef(0);
   const routeLineRef = useRef<any>(null);
 
+  const [tempoParado, setTempoParado] = useState(0);
+  const [tempoRodando, setTempoRodando] = useState(0);
+
   // 📡 Carregar e preparar a rota
   useEffect(() => {
     if (!route) return;
@@ -113,6 +116,12 @@ export default function MapView() {
       const speed = speedKmh / 3600;
       distanceRef.current += speed * delta;
 
+      if (speedKmh < 2) {
+        setTempoParado((prev) => prev + delta);
+      } else {
+        setTempoRodando((prev) => prev + delta);
+      }
+
       if (distanceRef.current > totalDistanceRef.current) {
         cancelAnimationFrame(animationRef.current!);
         return;
@@ -153,50 +162,52 @@ export default function MapView() {
 
   const center: LatLngExpression = roadCoords[0] || [-23.963214, -46.28054];
 
-return (
-  <div className={styles.wrapper}>
-    <div className={styles.mapArea}>
-      <MapContainer
-        center={center}
-        zoom={17}
-        scrollWheelZoom
-        className={styles.map}
-      >
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution="&copy; OpenStreetMap contributors"
+  return (
+    <div className={styles.wrapper}>
+      <div className={styles.mapArea}>
+        <MapContainer
+          center={center}
+          zoom={17}
+          scrollWheelZoom
+          className={styles.map}
+        >
+          <TileLayer
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            attribution="&copy; OpenStreetMap contributors"
+          />
+
+          {roadCoords.length > 1 && (
+            <Polyline positions={roadCoords} color="blue" weight={4} />
+          )}
+
+          <StopFollowOnZoom onStop={() => setFollowCar(false)} />
+
+          {carPosition && (
+            <>
+              <FollowCarControl position={carPosition} followCar={followCar} />
+              <Car position={carPosition} angle={carAngle} />
+            </>
+          )}
+        </MapContainer>
+      </div>
+
+      <div className={styles.dashboardArea}>
+        <DashboardPanel
+          speedKmh={speedKmh}
+          onSpeedChange={(_: Event, val: number | number[]) =>
+            setSpeedKmh(Array.isArray(val) ? val[0] : val)
+          }
+          currentRouteIndex={selectedRouteIndex}
+          totalRoutes={5}
+          onNextRoute={() => {
+            setSelectedRouteIndex((selectedRouteIndex + 1) % 5);
+          }}
+          onCenterMap={() => setFollowCar(true)}
+          tempoParado={tempoParado}
+          tempoRodando={tempoRodando}
+          angulo={carAngle}
         />
-
-        {roadCoords.length > 1 && (
-          <Polyline positions={roadCoords} color="blue" weight={4} />
-        )}
-
-        <StopFollowOnZoom onStop={() => setFollowCar(false)} />
-
-        {carPosition && (
-          <>
-            <FollowCarControl position={carPosition} followCar={followCar} />
-            <Car position={carPosition} angle={carAngle} />
-          </>
-        )}
-      </MapContainer>
+      </div>
     </div>
-
-    <div className={styles.dashboardArea}>
-      <DashboardPanel
-        speedKmh={speedKmh}
-        onSpeedChange={(_: Event, val: number | number[]) =>
-          setSpeedKmh(Array.isArray(val) ? val[0] : val)
-        }
-        currentRouteIndex={selectedRouteIndex}
-        totalRoutes={5}
-        onNextRoute={() => {
-          setSelectedRouteIndex((selectedRouteIndex + 1) % 5);
-        }}
-        onCenterMap={() => setFollowCar(true)}
-      />
-    </div>
-  </div>
-);
-
+  );
 }
