@@ -2,6 +2,7 @@ import styles from "./DashboardPanel.module.scss";
 import SpeedControl from "./SpeedControl";
 import RouteSelector from "./RouteSelector";
 import CenterMapButton from "./CenterMapButton";
+import HUD from "../HUD/HUD";
 
 interface DashboardPanelProps {
   speedKmh: number;
@@ -10,6 +11,9 @@ interface DashboardPanelProps {
   totalRoutes: number;
   onNextRoute: () => void;
   onCenterMap: () => void;
+  tempoParado: number;
+  tempoRodando: number;
+  angulo: number;
 }
 
 export default function DashboardPanel({
@@ -19,6 +23,9 @@ export default function DashboardPanel({
   totalRoutes,
   onNextRoute,
   onCenterMap,
+  tempoParado,
+  tempoRodando,
+  angulo,
 }: DashboardPanelProps) {
   return (
     <div className={styles.panel}>
@@ -35,10 +42,15 @@ export default function DashboardPanel({
       </div>
 
       <div className={styles.section}>
-        <button className={styles.centerButton} onClick={onCenterMap}>
-          🔁 Centralizar
-        </button>
+        <CenterMapButton onClick={onCenterMap} />
       </div>
+
+      <HUD
+        tempoParado={tempoParado}
+        tempoRodando={tempoRodando}
+        velocidade={speedKmh}
+        angulo={angulo}
+      />
     </div>
   );
 }
