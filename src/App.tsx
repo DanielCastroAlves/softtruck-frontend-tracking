@@ -1,7 +1,13 @@
-import MapView from "./components/MapView/MapView";
+import MapView from './components/MapView/MapView';
+import TrackSelector from './components/TrackSelector/TrackSelector';
 
 function App() {
-  return <MapView />;
+  return (
+    <>
+      <TrackSelector />
+      <MapView />
+    </>
+  );
 }
 
 export default App;
