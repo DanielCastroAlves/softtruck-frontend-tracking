@@ -3,6 +3,7 @@ import SpeedControl from "./SpeedControl";
 import RouteSelector from "./RouteSelector";
 import CenterMapButton from "./CenterMapButton";
 import HUD from "../HUD/HUD";
+import SimulationControls from "./SimulationControls";
 
 interface DashboardPanelProps {
   speedKmh: number;
@@ -52,11 +53,12 @@ export default function DashboardPanel({
       </div>
 
       <div className={styles.section}>
-        <button onClick={onPlay}>▶️ Play</button>
-        <button onClick={onPause}>⏸️ Pause</button>
-        <button onClick={onReset}>🔁 Reset</button>
+        <SimulationControls
+          onPlay={onPlay}
+          onPause={onPause}
+          onReset={onReset}
+        />
       </div>
-
       <HUD
         tempoParado={tempoParado}
         tempoRodando={tempoRodando}
