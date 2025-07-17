@@ -7,7 +7,7 @@ import {
   useMap,
   useMapEvents,
 } from "react-leaflet";
-import { latLngBounds, type LatLngExpression } from "leaflet";
+import { type LatLngExpression } from "leaflet";
 import { Slider } from "@mui/material";
 import { point as turfPoint, lineString } from "@turf/helpers";
 import along from "@turf/along";
@@ -24,7 +24,6 @@ function smoothAngle(prev: number, next: number, factor = 0.2) {
   return (prev + diff * factor + 360) % 360;
 }
 
-// componente que pára de seguir o carro quando o usuário dá zoom/arrasta
 function StopFollowOnZoom({ onStop }: { onStop: () => void }) {
   useMapEvents({
     zoomstart: onStop,
@@ -33,7 +32,6 @@ function StopFollowOnZoom({ onStop }: { onStop: () => void }) {
   return null;
 }
 
-// componente que centraliza a câmera no carro (apenas se followCar=true)
 function FollowCarControl({
   position,
   followCar,
@@ -54,18 +52,13 @@ export default function MapView() {
   const { selectedRouteIndex } = useGps();
   const route = getRouteByIndex(selectedRouteIndex);
 
-  // slider de velocidade (km/h)
   const [speedKmh, setSpeedKmh] = useState(10);
   const handleSpeedChange = (_: any, value: number | number[]) => {
     setSpeedKmh(Array.isArray(value) ? value[0] : value);
   };
 
-  // flag de follow automático
   const [followCar, setFollowCar] = useState(true);
-
-  const [carPosition, setCarPosition] = useState<[number, number] | null>(
-    null
-  );
+  const [carPosition, setCarPosition] = useState<[number, number] | null>(null);
   const [carAngle, setCarAngle] = useState(0);
   const [roadCoords, setRoadCoords] = useState<[number, number][]>([]);
 
@@ -74,52 +67,68 @@ export default function MapView() {
   const prevTimeRef = useRef<number | null>(null);
   const angleRef = useRef(0);
   const totalDistanceRef = useRef(0);
+  const routeLineRef = useRef<any>(null); // turf LineString
 
-  // prepara rota e animação
+  // 🧭 Primeiro efeito: busca e prepara a rota snapada
   useEffect(() => {
     if (!route) return;
 
-    const gpsPoints = route.gps
+    const rawPoints = route.gps
       .filter((p) => p.speed! > 0.5)
       .map((p) => [p.longitude, p.latitude]) as [number, number][];
 
-    if (gpsPoints.length < 2) return;
+    if (rawPoints.length < 2) return;
 
-    const routeLine = lineString(gpsPoints);
-    const totalDist = length(routeLine, { units: "kilometers" });
-    totalDistanceRef.current = totalDist;
+    const coordsParam = rawPoints.map(([lon, lat]) => `${lon},${lat}`).join(";");
 
-    setRoadCoords(gpsPoints.map(([lng, lat]) => [lat, lng]));
-    distanceRef.current = 0;
-    prevTimeRef.current = null;
-    angleRef.current = 0;
+    fetch(
+      `https://router.project-osrm.org/route/v1/driving/${coordsParam}?overview=full&geometries=geojson`
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        const snapped: [number, number][] =
+          data.routes?.[0]?.geometry?.coordinates || rawPoints;
 
-    // animação
+        setRoadCoords(snapped.map(([lng, lat]) => [lat, lng]));
+
+        const snappedLine = lineString(snapped);
+        routeLineRef.current = snappedLine;
+        totalDistanceRef.current = length(snappedLine, { units: "kilometers" });
+
+        distanceRef.current = 0;
+        prevTimeRef.current = null;
+        angleRef.current = 0;
+      });
+  }, [route]);
+
+  // 🎬 Segundo efeito: animação baseada em speedKmh
+  useEffect(() => {
+    if (!routeLineRef.current) return;
+
     const animate = (ts: number) => {
       if (!prevTimeRef.current) prevTimeRef.current = ts;
       const delta = (ts - prevTimeRef.current) / 1000;
       prevTimeRef.current = ts;
 
-      // usa velocidade do slider
       const speed = speedKmh / 3600; // km/s
       distanceRef.current += speed * delta;
 
-      if (distanceRef.current > totalDist) {
+      if (distanceRef.current > totalDistanceRef.current) {
         cancelAnimationFrame(animationRef.current!);
         return;
       }
 
-      const current = along(routeLine, distanceRef.current, {
+      const curr = along(routeLineRef.current, distanceRef.current, {
         units: "kilometers",
       });
       const prev = along(
-        routeLine,
+        routeLineRef.current,
         Math.max(distanceRef.current - 0.0001, 0),
         { units: "kilometers" }
       );
       const next = along(
-        routeLine,
-        Math.min(distanceRef.current + 0.0001, totalDist),
+        routeLineRef.current,
+        Math.min(distanceRef.current + 0.0001, totalDistanceRef.current),
         { units: "kilometers" }
       );
 
@@ -129,7 +138,7 @@ export default function MapView() {
       );
       angleRef.current = smoothAngle(angleRef.current, rawAngle);
 
-      const [lng, lat] = current.geometry.coordinates;
+      const [lng, lat] = curr.geometry.coordinates;
       setCarPosition([lat, lng]);
       setCarAngle(angleRef.current);
 
@@ -140,13 +149,12 @@ export default function MapView() {
     return () => {
       if (animationRef.current) cancelAnimationFrame(animationRef.current);
     };
-  }, [route, speedKmh]);
+  }, [speedKmh]);
 
   const center: LatLngExpression = roadCoords[0] || [-23.963214, -46.28054];
 
   return (
     <div className={styles.mapContainer}>
-      {/* controles */}
       <div
         style={{
           position: "absolute",
@@ -162,7 +170,7 @@ export default function MapView() {
           <label>Velocidade: {speedKmh} km/h</label>
           <Slider
             min={1}
-            max={100}
+            max={300}
             value={speedKmh}
             onChange={handleSpeedChange}
             style={{ width: 180, marginTop: 4 }}
@@ -186,15 +194,12 @@ export default function MapView() {
           <Polyline positions={roadCoords} color="blue" weight={4} />
         )}
 
-        {/* para parar o follow quando o usuário zoom/arrasta */}
         <StopFollowOnZoom onStop={() => setFollowCar(false)} />
 
-        {/* somente segue o carro se followCar === true */}
         {carPosition && (
           <FollowCarControl position={carPosition} followCar={followCar} />
         )}
 
-        {/* marcador do carro */}
         {carPosition && <Car position={carPosition} angle={carAngle} />}
       </MapContainer>
     </div>
