@@ -6,6 +6,15 @@ interface SpeedControlProps {
   onChange: (_: Event, value: number | number[]) => void;
 }
 
+const speedMarks = [
+  { value: 20, label: "20" },
+  { value: 60, label: "60" },
+  { value: 100, label: "100" },
+  { value: 150, label: "150" },
+  { value: 200, label: "200" },
+  { value: 300, label: "300" },
+];
+
 export default function SpeedControl({ value, onChange }: SpeedControlProps) {
   return (
     <Box mb={2}>
@@ -18,6 +27,8 @@ export default function SpeedControl({ value, onChange }: SpeedControlProps) {
         value={value}
         onChange={onChange}
         valueLabelDisplay="auto"
+        marks={speedMarks}
+        step={1}
       />
     </Box>
   );
