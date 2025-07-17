@@ -1,18 +1,27 @@
-import { Marker } from "react-leaflet";
+import { Marker, useMap } from "react-leaflet";
 import L from "leaflet";
 import "./Car.scss";
 
 export interface CarProps {
   position: [number, number];
-  angle: number; 
+  angle: number;
 }
 
-const Car = ({ position, angle }: CarProps) => {
+export default function Car({ position, angle }: CarProps) {
+  const map = useMap();
+  const zoom = map.getZoom();
+
+  const baseZoom = 17;
+  const baseScale = 0.3;
+  const scale = Math.max(
+    0.15,
+    Math.min(0.5, baseScale * (zoom / baseZoom))
+  );
+
   const totalFrames = 120;
   const frameWidth = 152;
   const frameHeight = 151;
 
-  const scale = 0.5;
   const iconW = frameWidth * scale;
   const iconH = frameHeight * scale;
 
@@ -39,6 +48,4 @@ const Car = ({ position, angle }: CarProps) => {
   });
 
   return <Marker position={position} icon={icon} />;
-};
-
-export default Car;
+}
