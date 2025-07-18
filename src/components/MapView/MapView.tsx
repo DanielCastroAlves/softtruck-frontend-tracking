@@ -1,4 +1,3 @@
-// src/features/MapView/MapView.tsx
 import { useEffect, useRef, useState } from "react";
 import { MapContainer, TileLayer, Polyline } from "react-leaflet";
 import { type LatLngExpression } from "leaflet";
@@ -11,8 +10,13 @@ import DashboardPanel from "../Dashboard/DashboardPanel";
 import { useCarAnimation } from "../../hooks/useCarAnimation";
 import StopFollowOnZoom from "../StopFollowOnZoom/StopFollowOnZoom";
 import FollowCarControl from "../FollowCarControl/FollowCarControl";
+import SimulationControls from "../Dashboard/SimulationControls";
+import { Box, useMediaQuery, useTheme } from "@mui/material";
 
 export default function MapView() {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   const { selectedRouteIndex, setSelectedRouteIndex } = useGps();
   const route = getRouteByIndex(selectedRouteIndex);
 
@@ -73,54 +77,81 @@ export default function MapView() {
   }, [route]);
 
   return (
-    <div className={styles.wrapper}>
-      <div className={styles.mapArea}>
-        <MapContainer
-          center={center}
-          zoom={17}
-          scrollWheelZoom
-          className={styles.map}
-        >
-          <TileLayer
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            attribution="&copy; OpenStreetMap contributors"
+    <>
+      <div className={styles.wrapper}>
+        <div className={styles.mapArea}>
+          <MapContainer
+            center={center}
+            zoom={17}
+            scrollWheelZoom
+            className={styles.map}
+          >
+            <TileLayer
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              attribution="&copy; OpenStreetMap contributors"
+            />
+
+            {roadCoords.length > 1 && (
+              <Polyline positions={roadCoords} color="blue" weight={4} />
+            )}
+
+            <StopFollowOnZoom onStop={() => setFollowCar(false)} />
+
+            {carPosition && (
+              <>
+                <FollowCarControl position={carPosition} followCar={followCar} />
+                <Car position={carPosition} angle={carAngle} />
+              </>
+            )}
+          </MapContainer>
+        </div>
+
+        <div className={styles.dashboardArea}>
+          <DashboardPanel
+            speedKmh={speedKmh}
+            onChange={(_: Event, val: number | number[]) =>
+              setSpeedKmh(Array.isArray(val) ? val[0] : val)
+            }
+            currentRouteIndex={selectedRouteIndex}
+            totalRoutes={5}
+            onNextRoute={() =>
+              setSelectedRouteIndex((selectedRouteIndex + 1) % 5)
+            }
+            onCenterMap={() => setFollowCar(true)}
+            tempoParado={tempoParado}
+            tempoRodando={tempoRodando}
+            angulo={carAngle}
+            onPlay={handlePlay}
+            onPause={handlePause}
+            onReset={handleReset}
           />
-
-          {roadCoords.length > 1 && (
-            <Polyline positions={roadCoords} color="blue" weight={4} />
-          )}
-
-          <StopFollowOnZoom onStop={() => setFollowCar(false)} />
-
-          {carPosition && (
-            <>
-              <FollowCarControl position={carPosition} followCar={followCar} />
-              <Car position={carPosition} angle={carAngle} />
-            </>
-          )}
-        </MapContainer>
+        </div>
       </div>
 
-      <div className={styles.dashboardArea}>
-        <DashboardPanel
-          speedKmh={speedKmh}
-          onSpeedChange={(_: Event, val: number | number[]) =>
-            setSpeedKmh(Array.isArray(val) ? val[0] : val)
-          }
-          currentRouteIndex={selectedRouteIndex}
-          totalRoutes={5}
-          onNextRoute={() =>
-            setSelectedRouteIndex((selectedRouteIndex + 1) % 5)
-          }
-          onCenterMap={() => setFollowCar(true)}
-          tempoParado={tempoParado}
-          tempoRodando={tempoRodando}
-          angulo={carAngle}
-          onPlay={handlePlay}
-          onPause={handlePause}
-          onReset={handleReset}
-        />
-      </div>
-    </div>
+      {/* Rodapé com botões fixos apenas no desktop */}
+      {!isMobile && (
+        <Box
+          sx={{
+            position: "fixed",
+            bottom: 16,
+            left: "50%",
+            transform: "translateX(-50%)",
+            zIndex: 1000,
+            backgroundColor: "white",
+            borderRadius: 2,
+            boxShadow: 3,
+            px: 2,
+            py: 1,
+          }}
+        >
+          <SimulationControls
+            onPlay={handlePlay}
+            onPause={handlePause}
+            onReset={handleReset}
+            onCenterMap={() => setFollowCar(true)}
+          />
+        </Box>
+      )}
+    </>
   );
 }

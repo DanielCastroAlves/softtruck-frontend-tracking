@@ -1,0 +1,15 @@
+.cardRoot {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.cardContent {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.vehicleText {
+  word-break: break-word;
+  max-width: 200px;
+}

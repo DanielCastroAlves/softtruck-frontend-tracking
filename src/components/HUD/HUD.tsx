@@ -9,14 +9,12 @@ import {
 import PauseCircleOutlineIcon from "@mui/icons-material/PauseCircleOutline";
 import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutline";
 import SpeedIcon from "@mui/icons-material/Speed";
-import ExploreIcon from "@mui/icons-material/Explore";
 import { useTranslation } from "react-i18next";
 
 interface HUDProps {
   tempoParado: number;
   tempoRodando: number;
   velocidade: number;
-  angulo: number;
 }
 
 function formatElapsed(s: number) {
@@ -28,8 +26,7 @@ function formatElapsed(s: number) {
 export default function HUD({
   tempoParado,
   tempoRodando,
-  velocidade,
-  angulo
+  velocidade
 }: HUDProps) {
   const { t } = useTranslation();
 
@@ -67,14 +64,6 @@ export default function HUD({
             <Typography variant="body2">
               {velocidade.toFixed(1)} km/h
             </Typography>
-          </Box>
-
-          <Box display="flex" alignItems="center" gap={1}>
-            <ExploreIcon />
-            <Typography variant="body2" sx={{ fontWeight: 500, minWidth: 130 }}>
-              {t("hud.status.angle")}
-            </Typography>
-            <Typography variant="body2">{angulo.toFixed(1)}°</Typography>
           </Box>
         </Stack>
       </CardContent>
