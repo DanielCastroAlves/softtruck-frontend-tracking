@@ -100,6 +100,7 @@ export default function MapView() {
             </>
           )}
         </MapContainer>
+        
       </div>
 
       <div className={styles.dashboardArea}>
