@@ -138,7 +138,7 @@ export function SpeedControlPanel({
         <Slider
           aria-label="Velocidade do veículo"
           min={1}
-          max={300}
+          max={500}
           onChange={onChange}
           value={value}
           valueLabelDisplay="auto"

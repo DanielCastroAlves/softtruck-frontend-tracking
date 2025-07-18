@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, type ReactNode } from "react";
 
 import { getRouteByIndex } from "../services/useRouteData";
-import type { GpsPoint } from "../services/useRouteData";
+import type { GpsPoint } from "../types/route";
 
 interface GpsContextType {
   selectedRouteIndex: number;

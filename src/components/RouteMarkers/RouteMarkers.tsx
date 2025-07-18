@@ -6,6 +6,7 @@ import ReactDOMServer from "react-dom/server";
 
 interface RouteMarkersProps {
   coords: [number, number][];
+  durations?: number[];
 }
 
 export function RouteMarkers({ coords }: RouteMarkersProps) {
@@ -22,7 +23,7 @@ export function RouteMarkers({ coords }: RouteMarkersProps) {
 
   const endIcon = L.divIcon({
     html: ReactDOMServer.renderToString(
-      <FlagIcon style={{ color: "#f44336", fontSize: 36 }} />
+      <FlagIcon style={{ color: "#c03131ff", fontSize: 36 }} />
     ),
     className: "",
     iconSize: [36, 36],
@@ -32,13 +33,15 @@ export function RouteMarkers({ coords }: RouteMarkersProps) {
   return (
     <>
       <Marker position={coords[0]} icon={startIcon}>
-        <Tooltip
-          direction="top"
-          offset={[0, -20]}
-        >{`Ponto de Partida`}</Tooltip>
+        <Tooltip direction="top" offset={[0, -20]}>
+          Ponto de Partida
+        </Tooltip>
       </Marker>
+
       <Marker position={coords[coords.length - 1]} icon={endIcon}>
-        <Tooltip direction="top" offset={[0, -20]}>{`Destino Final`}</Tooltip>
+        <Tooltip direction="top" offset={[0, -20]}>
+          Destino Final
+        </Tooltip>
       </Marker>
     </>
   );

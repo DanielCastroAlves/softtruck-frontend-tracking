@@ -79,6 +79,7 @@ export function useCarAnimation({
     const [lng, lat] = curr.geometry.coordinates;
     setCarPosition([lat, lng]);
     setCarAngle(angleRef.current);
+    
 
     animationRef.current = requestAnimationFrame(animate);
   }

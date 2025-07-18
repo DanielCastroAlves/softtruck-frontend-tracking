@@ -1,31 +1,6 @@
 import data from "../data/frontend_data_gps.json";
+import type { CourseInfo, Route } from "../types/route";
 
-export interface GpsPoint {
-  latitude: number;
-  longitude: number;
-  acquisition_time_unix: number;
-  acquisition_time: string;
-  speed: number;
-  direction?: number;
-  address?: string;
-  vehicle_id?: string;
-}
-
-export interface Route {
-  start_at: string;
-  end_at: string;
-  distance: number;
-  stops: number;
-  gps: GpsPoint[];
-}
-
-export interface CourseInfo {
-  index: number;
-  start_at: string;
-  end_at: string;
-  distance: number;
-  stops: number;
-}
 
 export function getAvailableRoutes(): CourseInfo[] {
   return data.courses.map((course, index) => ({
