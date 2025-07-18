@@ -7,27 +7,28 @@ export interface CarProps {
   angle: number;
 }
 
-export default function Car({ position, angle }: CarProps) {
+export function Car({ position, angle }: CarProps) {
   const map = useMap();
   const zoom = map.getZoom();
 
-  const baseZoom = 17;
+  const referenceZoom = 17;
   const baseScale = 0.3;
   const scale = Math.max(
     0.15,
-    Math.min(0.5, baseScale * (zoom / baseZoom))
+    Math.min(0.5, baseScale * (zoom / referenceZoom))
   );
 
   const totalFrames = 120;
   const frameWidth = 152;
   const frameHeight = 151;
 
-  const iconW = frameWidth * scale;
-  const iconH = frameHeight * scale;
+  const iconWidth = frameWidth * scale;
+  const iconHeight = frameHeight * scale;
 
-  const correctedAngle = (360 - angle) % 360;
+  const normalizedAngle = (360 - angle) % 360;
   const degreesPerFrame = 360 / totalFrames;
-  const frameIndex = Math.round(correctedAngle / degreesPerFrame) % totalFrames;
+  const frameIndex =
+    Math.round(normalizedAngle / degreesPerFrame) % totalFrames;
 
   const icon = L.divIcon({
     className: "car-icon",
@@ -43,8 +44,8 @@ export default function Car({ position, angle }: CarProps) {
         "
       ></div>
     `,
-    iconSize: [iconW, iconH],
-    iconAnchor: [iconW / 2, iconH / 2],
+    iconSize: [iconWidth, iconHeight],
+    iconAnchor: [iconWidth / 2, iconHeight / 2],
   });
 
   return <Marker position={position} icon={icon} />;

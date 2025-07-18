@@ -6,7 +6,7 @@ interface CenterMapButtonProps {
   onClick: () => void;
 }
 
-export default function CenterMapButton({ onClick }: CenterMapButtonProps) {
+export function CenterMapButton({ onClick }: CenterMapButtonProps) {
   const { t } = useTranslation();
 
   return (

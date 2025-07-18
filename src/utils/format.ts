@@ -1,4 +1,3 @@
-// src/utils/format.ts
 export function formatKm(meters: number) {
   return `${(meters / 1000).toFixed(1)} km`;
 }

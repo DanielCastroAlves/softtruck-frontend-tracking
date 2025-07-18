@@ -1,10 +1,10 @@
-import { Card, CardContent, Typography, Box, Avatar } from "@mui/material";
-import data from "../../data/frontend_data_gps.json";
-import styles from "./VehicleCard.module.scss";
+import { Avatar, Box, Card, CardContent, Typography } from "@mui/material";
+import data from "../../../data/frontend_data_gps.json";
+import styles from "../styles/VehicleCard.module.scss";
 
-const vehicle = data.vehicle;
+const { vehicle } = data;
 
-export default function VehicleCard() {
+export function VehicleCard() {
   if (!vehicle) return null;
 
   const { plate, vin, color, picture } = vehicle;
@@ -13,8 +13,8 @@ export default function VehicleCard() {
     <Card className={styles.cardRoot} sx={{ mb: 2 }}>
       <CardContent className={styles.cardContent}>
         <Avatar
-          src={picture?.address}
           alt="Veículo"
+          src={picture?.address}
           variant="rounded"
           sx={{ width: 64, height: 64 }}
         />
@@ -26,12 +26,12 @@ export default function VehicleCard() {
           <Box display="flex" alignItems="center" mt={1}>
             <Box
               sx={{
-                width: 16,
-                height: 16,
                 backgroundColor: color,
-                borderRadius: "50%",
                 border: "1px solid #888",
+                borderRadius: "50%",
+                height: 16,
                 mr: 1,
+                width: 16,
               }}
             />
             <Typography variant="body2">{color}</Typography>

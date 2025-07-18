@@ -8,7 +8,7 @@ interface RouteMarkersProps {
   coords: [number, number][];
 }
 
-export default function RouteMarkers({ coords }: RouteMarkersProps) {
+export function RouteMarkers({ coords }: RouteMarkersProps) {
   if (coords.length < 2) return null;
 
   const startIcon = L.divIcon({
@@ -32,14 +32,13 @@ export default function RouteMarkers({ coords }: RouteMarkersProps) {
   return (
     <>
       <Marker position={coords[0]} icon={startIcon}>
-        <Tooltip direction="top" offset={[0, -20]} permanent={false}>
-          Ponto de Partida
-        </Tooltip>
+        <Tooltip
+          direction="top"
+          offset={[0, -20]}
+        >{`Ponto de Partida`}</Tooltip>
       </Marker>
       <Marker position={coords[coords.length - 1]} icon={endIcon}>
-        <Tooltip direction="top" offset={[0, -20]} permanent={false}>
-          Destino Final
-        </Tooltip>
+        <Tooltip direction="top" offset={[0, -20]}>{`Destino Final`}</Tooltip>
       </Marker>
     </>
   );

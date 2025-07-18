@@ -1,20 +1,22 @@
-// src/components/MapView/MapView.tsx
-
 import { useEffect, useRef, useState } from "react";
 import { MapContainer, TileLayer, Polyline } from "react-leaflet";
 import { type LatLngExpression } from "leaflet";
 import { useGps } from "../../contexts/GpsContext";
 import { getRouteByIndex } from "../../services/useRouteData";
 import { fetchSnappedRoute } from "../../utils/fetchRouteSnap";
-import Car from "../Car/Car";
+
+import {
+  Car,
+  DashboardPanel,
+  FollowCarControl,
+  RouteMarkers,
+  StopFollowOnZoom,
+} from "../index";
+
 import styles from "./MapView.module.scss";
-import DashboardPanel from "../Dashboard/DashboardPanel";
 import { useCarAnimation } from "../../hooks/useCarAnimation";
-import StopFollowOnZoom from "../StopFollowOnZoom/StopFollowOnZoom";
-import FollowCarControl from "../FollowCarControl/FollowCarControl";
-import RouteMarkers from "../RouteMarkers/RouteMarkers";
-import RouteSelector from "../Dashboard/RouteSelector";
 import { Box } from "@mui/material";
+import { RouteSelector } from "../Dashboard/components/index";
 
 export default function MapView() {
   const { selectedRouteIndex, setSelectedRouteIndex } = useGps();
@@ -90,7 +92,7 @@ export default function MapView() {
           boxShadow: 3,
           px: 2,
           py: 1,
-          minWidth: 300, // ajuste para seu layout
+          minWidth: 300,
         }}
       >
         <RouteSelector
@@ -141,6 +143,8 @@ export default function MapView() {
           onPlay={handlePlay}
           onPause={handlePause}
           onReset={handleReset}
+          currentRouteIndex={selectedRouteIndex}
+          onRouteChange={setSelectedRouteIndex}
         />
       </div>
     </div>

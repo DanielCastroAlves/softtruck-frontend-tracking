@@ -7,7 +7,7 @@ interface FollowCarControlProps {
   followCar: boolean;
 }
 
-export default function FollowCarControl({ position, followCar }: FollowCarControlProps) {
+export function FollowCarControl({ position, followCar }: FollowCarControlProps) {
   const map = useMap();
 
   useEffect(() => {

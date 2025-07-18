@@ -1,30 +1,30 @@
 import {
-  IconButton,
-  Tooltip,
-  ButtonGroup,
   Button,
+  ButtonGroup,
+  IconButton,
   Stack,
+  Tooltip,
   useMediaQuery,
 } from "@mui/material";
-import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-import PauseIcon from "@mui/icons-material/Pause";
-import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import MyLocationIcon from "@mui/icons-material/MyLocation";
-import { useTranslation } from "react-i18next";
+import PauseIcon from "@mui/icons-material/Pause";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import { useTheme } from "@mui/material/styles";
+import { useTranslation } from "react-i18next";
 
 interface SimulationControlsProps {
-  onPlay: () => void;
-  onPause: () => void;
-  onReset: () => void;
   onCenterMap: () => void;
+  onPause: () => void;
+  onPlay: () => void;
+  onReset: () => void;
 }
 
-export default function SimulationControls({
-  onPlay,
-  onPause,
-  onReset,
+export function SimulationControls({
   onCenterMap,
+  onPause,
+  onPlay,
+  onReset,
 }: SimulationControlsProps) {
   const { t } = useTranslation();
   const theme = useTheme();
@@ -35,14 +35,14 @@ export default function SimulationControls({
       <Stack
         spacing={1}
         sx={{
-          position: "fixed",
-          top: 16,
-          right: 16,
-          zIndex: 1500,
           background: "#fff",
           borderRadius: 2,
-          padding: 1,
           boxShadow: 3,
+          padding: 1,
+          position: "fixed",
+          right: 16,
+          top: 16,
+          zIndex: 1500,
         }}
       >
         <Tooltip title={t("simulation.start")}>
@@ -50,16 +50,19 @@ export default function SimulationControls({
             <PlayArrowIcon />
           </IconButton>
         </Tooltip>
+
         <Tooltip title={t("simulation.pause")}>
           <IconButton onClick={onPause}>
             <PauseIcon />
           </IconButton>
         </Tooltip>
+
         <Tooltip title={t("simulation.reset")}>
           <IconButton onClick={onReset}>
             <RestartAltIcon />
           </IconButton>
         </Tooltip>
+
         <Tooltip title={t("controls.centerMap")}>
           <IconButton onClick={onCenterMap}>
             <MyLocationIcon />
@@ -71,17 +74,19 @@ export default function SimulationControls({
 
   return (
     <Stack spacing={1}>
-      <ButtonGroup variant="outlined" fullWidth>
+      <ButtonGroup fullWidth variant="outlined">
         <Tooltip title={t("simulation.start")}>
           <IconButton onClick={onPlay}>
             <PlayArrowIcon />
           </IconButton>
         </Tooltip>
+
         <Tooltip title={t("simulation.pause")}>
           <IconButton onClick={onPause}>
             <PauseIcon />
           </IconButton>
         </Tooltip>
+
         <Tooltip title={t("simulation.reset")}>
           <IconButton onClick={onReset}>
             <RestartAltIcon />
@@ -90,10 +95,10 @@ export default function SimulationControls({
       </ButtonGroup>
 
       <Button
-        variant="outlined"
         fullWidth
-        startIcon={<MyLocationIcon />}
         onClick={onCenterMap}
+        startIcon={<MyLocationIcon />}
+        variant="outlined"
       >
         {t("controls.centerMap")}
       </Button>

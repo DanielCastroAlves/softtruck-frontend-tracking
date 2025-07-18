@@ -1,4 +1,3 @@
-// src/data/routes.ts
 import gpsData from "../data/frontend_data_gps.json";
 
 export interface GpsPoint {

@@ -4,7 +4,7 @@ interface StopFollowOnZoomProps {
   onStop: () => void;
 }
 
-export default function StopFollowOnZoom({ onStop }: StopFollowOnZoomProps) {
+export function StopFollowOnZoom({ onStop }: StopFollowOnZoomProps) {
   useMapEvents({
     zoomstart: onStop,
     dragstart: onStop,

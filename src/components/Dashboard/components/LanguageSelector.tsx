@@ -1,21 +1,21 @@
-import { Select, MenuItem, InputLabel, FormControl } from "@mui/material";
+import { FormControl, InputLabel, MenuItem, Select } from "@mui/material";
 import type { SelectChangeEvent } from "@mui/material/Select";
 import { useTranslation } from "react-i18next";
 
-export default function LanguageSelector() {
+export function LanguageSelector() {
   const { i18n, t } = useTranslation();
 
-  const handleChange = (event: SelectChangeEvent<string>) => {
+  const handleLanguageChange = (event: SelectChangeEvent<string>) => {
     i18n.changeLanguage(event.target.value);
   };
 
   return (
     <FormControl fullWidth>
-      <InputLabel id="lang-label">{t("language.label")}</InputLabel>
+      <InputLabel id="language-label">{t("language.label")}</InputLabel>
       <Select
-        labelId="lang-label"
+        labelId="language-label"
         value={i18n.language}
-        onChange={handleChange}
+        onChange={handleLanguageChange}
         variant="outlined"
         size="small"
       >

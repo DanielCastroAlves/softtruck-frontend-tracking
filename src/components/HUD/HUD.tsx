@@ -1,10 +1,10 @@
 import {
+  Box,
   Card,
   CardContent,
-  Typography,
-  Box,
   Divider,
-  Stack
+  Stack,
+  Typography,
 } from "@mui/material";
 import PauseCircleOutlineIcon from "@mui/icons-material/PauseCircleOutline";
 import PlayCircleOutlineIcon from "@mui/icons-material/PlayCircleOutline";
@@ -17,17 +17,13 @@ interface HUDProps {
   velocidade: number;
 }
 
-function formatElapsed(s: number) {
-  const min = Math.floor(s / 60);
-  const sec = Math.floor(s % 60);
-  return `${min}:${sec.toString().padStart(2, "0")}`;
+function formatElapsedTime(seconds: number) {
+  const minutes = Math.floor(seconds / 60);
+  const secs = Math.floor(seconds % 60);
+  return `${minutes}:${secs.toString().padStart(2, "0")}`;
 }
 
-export default function HUD({
-  tempoParado,
-  tempoRodando,
-  velocidade
-}: HUDProps) {
+export function HUD({ tempoParado, tempoRodando, velocidade }: HUDProps) {
   const { t } = useTranslation();
 
   return (
@@ -45,7 +41,9 @@ export default function HUD({
             <Typography variant="body2" sx={{ fontWeight: 500, minWidth: 130 }}>
               {t("hud.status.stoppedTime")}
             </Typography>
-            <Typography variant="body2">{formatElapsed(tempoParado)}</Typography>
+            <Typography variant="body2">
+              {formatElapsedTime(tempoParado)}
+            </Typography>
           </Box>
 
           <Box display="flex" alignItems="center" gap={1}>
@@ -53,7 +51,9 @@ export default function HUD({
             <Typography variant="body2" sx={{ fontWeight: 500, minWidth: 130 }}>
               {t("hud.status.runningTime")}
             </Typography>
-            <Typography variant="body2">{formatElapsed(tempoRodando)}</Typography>
+            <Typography variant="body2">
+              {formatElapsedTime(tempoRodando)}
+            </Typography>
           </Box>
 
           <Box display="flex" alignItems="center" gap={1}>
