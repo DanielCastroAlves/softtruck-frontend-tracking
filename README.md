@@ -149,7 +149,7 @@ Ver arquivo [`PLANEJAMENTO.md`](./PLANEJAMENTO.md) para detalhes de decisões de
 
 Desenvolvido por Daniel Castro Alves
 📧 [danielvortex@hotmail.com](mailto:danielvortex@hotmail.com)
-🌐 [LinkedIn](https://www.linkedin.com/in/daniel-castro-alves)
+🌐 [LinkedIn](https://www.linkedin.com/in/danielcfalves/)
 
 ---
 
