@@ -7,12 +7,13 @@ import {
   useMapEvents,
 } from "react-leaflet";
 import { type LatLngExpression } from "leaflet";
-import { point as turfPoint, lineString } from "@turf/helpers";
+import { point as turfPoint } from "@turf/helpers";
 import along from "@turf/along";
 import bearing from "@turf/bearing";
-import length from "@turf/length";
 import { useGps } from "../../contexts/GpsContext";
 import { getRouteByIndex } from "../../services/useRouteData";
+import { fetchSnappedRoute } from "../../utils/fetchRouteSnap";
+import { DISTANCE_UNIT } from "../../config/map";
 import Car from "../Car/Car";
 import styles from "./MapView.module.scss";
 import DashboardPanel from "../Dashboard/DashboardPanel";
@@ -51,7 +52,7 @@ export default function MapView() {
   const route = getRouteByIndex(selectedRouteIndex);
 
   const [speedKmh, setSpeedKmh] = useState(10);
-  const speedRef = useRef(speedKmh); 
+  const speedRef = useRef(speedKmh);
 
   const [followCar, setFollowCar] = useState(true);
   const [carPosition, setCarPosition] = useState<[number, number] | null>(null);
@@ -70,7 +71,7 @@ export default function MapView() {
   const center: LatLngExpression = roadCoords[0] || [-23.963214, -46.28054];
 
   useEffect(() => {
-    speedRef.current = speedKmh; 
+    speedRef.current = speedKmh;
   }, [speedKmh]);
 
   useEffect(() => {
@@ -82,30 +83,17 @@ export default function MapView() {
 
     if (rawPoints.length < 2) return;
 
-    const coordsParam = rawPoints
-      .map(([lon, lat]) => `${lon},${lat}`)
-      .join(";");
+    fetchSnappedRoute(rawPoints).then(({ snappedCoords, snappedLine, totalKm }) => {
+      setRoadCoords(snappedCoords);
+      routeLineRef.current = snappedLine;
+      totalDistanceRef.current = totalKm;
 
-    fetch(
-      `https://router.project-osrm.org/route/v1/driving/${coordsParam}?overview=full&geometries=geojson`
-    )
-      .then((res) => res.json())
-      .then((data) => {
-        const snapped: [number, number][] =
-          data.routes?.[0]?.geometry?.coordinates || rawPoints;
+      distanceRef.current = 0;
+      prevTimeRef.current = null;
+      angleRef.current = 0;
 
-        setRoadCoords(snapped.map(([lng, lat]) => [lat, lng]));
-
-        const snappedLine = lineString(snapped);
-        routeLineRef.current = snappedLine;
-        totalDistanceRef.current = length(snappedLine, { units: "kilometers" });
-
-        distanceRef.current = 0;
-        prevTimeRef.current = null;
-        angleRef.current = 0;
-
-        handleReset();
-      });
+      handleReset();
+    });
   }, [route]);
 
   function animate(ts: number) {
@@ -115,7 +103,7 @@ export default function MapView() {
     const delta = (ts - prevTimeRef.current) / 1000;
     prevTimeRef.current = ts;
 
-    const speed = speedRef.current / 3600; 
+    const speed = speedRef.current / 3600;
     distanceRef.current += speed * delta;
 
     if (speedRef.current < 2) {
@@ -130,18 +118,16 @@ export default function MapView() {
       return;
     }
 
-    const curr = along(routeLineRef.current, distanceRef.current, {
-      units: "kilometers",
-    });
+    const curr = along(routeLineRef.current, distanceRef.current, DISTANCE_UNIT);
     const prev = along(
       routeLineRef.current,
       Math.max(distanceRef.current - 0.0001, 0),
-      { units: "kilometers" }
+      DISTANCE_UNIT
     );
     const next = along(
       routeLineRef.current,
       Math.min(distanceRef.current + 0.0001, totalDistanceRef.current),
-      { units: "kilometers" }
+      DISTANCE_UNIT
     );
 
     const rawAngle = bearing(
