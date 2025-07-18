@@ -1,5 +1,5 @@
 import { Box, Button, Typography, Stack } from "@mui/material";
-import { RouteSelector } from "../../../../components/Dashboard/components";
+import { RouteSelector } from "../Dashboard/components";
 
 interface Props {
   selectedRouteIndex: number;
