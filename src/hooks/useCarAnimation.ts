@@ -3,15 +3,9 @@ import { point as turfPoint } from "@turf/helpers";
 import along from "@turf/along";
 import bearing from "@turf/bearing";
 import { DISTANCE_UNIT } from "../config/map";
+import type { CarAnimationParams } from "../types/route";
 
-interface CarAnimationParams {
-  speedRef: React.MutableRefObject<number>;
-  setCarPosition: (pos: [number, number]) => void;
-  setCarAngle: (angle: number) => void;
-  setTempoParado: (cb: (t: number) => number) => void;
-  setTempoRodando: (cb: (t: number) => number) => void;
-  roadCoords: [number, number][];
-}
+
 
 export function useCarAnimation({
   speedRef,

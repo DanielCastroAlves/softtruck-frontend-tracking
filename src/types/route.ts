@@ -32,3 +32,13 @@ export interface CourseInfo {
   distance: number;
   stops: number;
 }
+
+export interface CarAnimationParams {
+  speedRef: React.MutableRefObject<number>;
+  setCarPosition: (pos: [number, number]) => void;
+  setCarAngle: (angle: number) => void;
+  setTempoParado: (cb: (t: number) => number) => void;
+  setTempoRodando: (cb: (t: number) => number) => void;
+  roadCoords: [number, number][];
+  onFinish?: () => void; // 👈 adicione esta linha
+}
