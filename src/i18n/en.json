@@ -1,21 +1,31 @@
 {
-    "hud": {
-        "speed": {
-            "label": "Speed:"
-        },
-        "status": {
-            "title": "Vehicle Status",
-            "stoppedTime": "Stopped time:",
-            "runningTime": "Running time:",
-            "currentSpeed": "Current speed:",
-            "angle": "Direction angle:"
-        }
+  "hud": {
+    "speed": {
+      "label": "Speed:"
     },
-    "controls": {
-        "route": {
-            "label": "Route:",
-            "next": "NEXT"
-        },
-        "centerMap": "CENTER MAP"
+    "status": {
+      "title": "Vehicle Status",
+      "stoppedTime": "Stopped time:",
+      "runningTime": "Running time:",
+      "currentSpeed": "Current speed:",
+      "angle": "Direction angle:"
+    },
+    "vehicleCard": {
+      "plate": "Plate:",
+      "vin": "VIN:"
     }
+  },
+  "controls": {
+    "route": {
+      "label": "Route",
+      "next": "NEXT"
+    },
+    "centerMap": "CENTER MAP",
+    "followCar": "Follow vehicle"
+  },
+  "simulation": {
+    "start": "Start simulation",
+    "pause": "Pause simulation",
+    "reset": "Reset"
+  }
 }

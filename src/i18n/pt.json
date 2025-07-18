@@ -1,21 +1,31 @@
 {
-    "hud": {
-        "speed": {
-            "label": "Velocidade:"
-        },
-        "status": {
-            "title": "Status do Veículo",
-            "stoppedTime": "Tempo parado:",
-            "runningTime": "Tempo rodando:",
-            "currentSpeed": "Velocidade atual:",
-            "angle": "Ângulo de direção:"
-        }
+  "hud": {
+    "speed": {
+      "label": "Velocidade:"
     },
-    "controls": {
-        "route": {
-            "label": "Rota:",
-            "next": "PRÓXIMA"
-        },
-        "centerMap": "CENTRALIZAR MAPA"
+    "status": {
+      "title": "Status do Veículo",
+      "stoppedTime": "Tempo parado:",
+      "runningTime": "Tempo rodando:",
+      "currentSpeed": "Velocidade atual:",
+      "angle": "Ângulo de direção:"
+    },
+    "vehicleCard": {
+      "plate": "Placa:",
+      "vin": "Chassi:"
     }
+  },
+  "controls": {
+    "route": {
+      "label": "Rota",
+      "next": "PRÓXIMA"
+    },
+    "centerMap": "CENTRALIZAR MAPA",
+    "followCar": "Seguir veículo"
+  },
+  "simulation": {
+    "start": "Iniciar simulação",
+    "pause": "Pausar simulação",
+    "reset": "Reiniciar"
+  }
 }

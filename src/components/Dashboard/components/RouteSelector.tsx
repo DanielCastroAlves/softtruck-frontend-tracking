@@ -1,5 +1,5 @@
-import { Box, FormControl, InputLabel, MenuItem, Select } from "@mui/material";
-import type { SelectChangeEvent } from "@mui/material/Select";
+import { MenuItem, Select, Typography } from "@mui/material";
+import type { SelectChangeEvent } from "@mui/material";
 import { useTranslation } from "react-i18next";
 import gpsData from "../../../data/frontend_data_gps.json";
 import { formatDuration, formatKm } from "../../../utils/format";
@@ -18,22 +18,39 @@ export function RouteSelector({ current, onChange }: RouteSelectorProps) {
   };
 
   return (
-    <Box>
-      <FormControl size="small" fullWidth>
-        <InputLabel id="route-select-label">{t("controls.route.label")}</InputLabel>
-        <Select
-          labelId="route-select-label"
-          value={current.toString()}
-          label={t("controls.route.label")}
-          onChange={handleRouteChange}
-        >
-          {routes.map((route, idx) => (
-            <MenuItem key={idx} value={idx.toString()}>
-              {`Rota ${idx + 1} – ${formatKm(route.distance)}, ${formatDuration(route.duration)}`}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-    </Box>
+    <Select
+      value={current.toString()}
+      onChange={handleRouteChange}
+      variant="outlined"
+      size="small"
+      displayEmpty
+      sx={{
+        minWidth: 220,
+        borderRadius: 2,
+        px: 3,
+        py: 0.5,
+        backgroundColor: "#fff",
+        boxShadow: "0 1px 2px rgba(0,0,0,0.1)",
+        fontFamily: '"Inter", sans-serif',
+        fontWeight: 400,
+        ".MuiSelect-select": {
+          display: "flex",
+          alignItems: "center",
+          gap: "4px",
+          paddingY: "6px",
+        },
+      }}
+    >
+      {routes.map((route, idx) => (
+        <MenuItem key={idx} value={idx.toString()}>
+          <Typography component="span" fontWeight={600}>
+            {t("controls.route.label")} {idx + 1}
+          </Typography>
+          <Typography component="span" ml={1} color="text.secondary">
+            – {formatKm(route.distance)}, {formatDuration(route.duration)}
+          </Typography>
+        </MenuItem>
+      ))}
+    </Select>
   );
 }

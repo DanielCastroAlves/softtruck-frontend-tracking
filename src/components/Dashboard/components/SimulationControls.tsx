@@ -1,6 +1,5 @@
 import {
   Button,
-  ButtonGroup,
   IconButton,
   Stack,
   Tooltip,
@@ -12,6 +11,7 @@ import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import RestartAltIcon from "@mui/icons-material/RestartAlt";
 import { useTheme } from "@mui/material/styles";
 import { useTranslation } from "react-i18next";
+import { useState } from "react";
 
 interface SimulationControlsProps {
   onCenterMap: () => void;
@@ -29,6 +29,18 @@ export function SimulationControls({
   const { t } = useTranslation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  const handlePlayPause = () => {
+    if (isPlaying) {
+      onPause();
+    } else {
+      onPlay();
+    }
+    setIsPlaying(!isPlaying);
+  };
+
+  const followCarLabel = t("controls.followCar") || "Seguir veículo";
 
   if (isMobile) {
     return (
@@ -45,15 +57,9 @@ export function SimulationControls({
           zIndex: 1500,
         }}
       >
-        <Tooltip title={t("simulation.start")}>
-          <IconButton onClick={onPlay}>
-            <PlayArrowIcon />
-          </IconButton>
-        </Tooltip>
-
-        <Tooltip title={t("simulation.pause")}>
-          <IconButton onClick={onPause}>
-            <PauseIcon />
+        <Tooltip title={isPlaying ? t("simulation.pause") : t("simulation.start")}>
+          <IconButton onClick={handlePlayPause}>
+            {isPlaying ? <PauseIcon /> : <PlayArrowIcon />}
           </IconButton>
         </Tooltip>
 
@@ -63,7 +69,7 @@ export function SimulationControls({
           </IconButton>
         </Tooltip>
 
-        <Tooltip title={t("controls.centerMap")}>
+        <Tooltip title={followCarLabel}>
           <IconButton onClick={onCenterMap}>
             <MyLocationIcon />
           </IconButton>
@@ -73,49 +79,30 @@ export function SimulationControls({
   }
 
   return (
-    <Stack
-      spacing={1}
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        padding: 1,
-      }}
-    >
-      <ButtonGroup
-        fullWidth
-        variant="outlined"
-        sx={{
-          display: "flex",
-          justifyContent: "space-around",
-        }}
-      >
-        <Tooltip title={t("simulation.start")}>
-          <IconButton onClick={onPlay}>
-            <PlayArrowIcon />
-          </IconButton>
-        </Tooltip>
+    <Stack spacing={1} direction="row" alignItems="center" justifyContent="center">
+      <Tooltip title={isPlaying ? t("simulation.pause") : t("simulation.start")}>
+        <IconButton onClick={handlePlayPause}>
+          {isPlaying ? <PauseIcon /> : <PlayArrowIcon />}
+        </IconButton>
+      </Tooltip>
 
-        <Tooltip title={t("simulation.pause")}>
-          <IconButton onClick={onPause}>
-            <PauseIcon />
-          </IconButton>
-        </Tooltip>
-
-        <Tooltip title={t("simulation.reset")}>
-          <IconButton onClick={onReset}>
-            <RestartAltIcon />
-          </IconButton>
-        </Tooltip>
-      </ButtonGroup>
+      <Tooltip title={t("simulation.reset")}>
+        <IconButton onClick={onReset}>
+          <RestartAltIcon />
+        </IconButton>
+      </Tooltip>
 
       <Button
-        fullWidth
         onClick={onCenterMap}
         startIcon={<MyLocationIcon />}
         variant="outlined"
+        sx={{
+          fontWeight: 500,
+          fontSize: "0.875rem",
+          textTransform: "none",
+        }}
       >
-        {t("controls.centerMap")}
+        {followCarLabel}
       </Button>
     </Stack>
   );
