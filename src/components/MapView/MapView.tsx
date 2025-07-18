@@ -1,26 +1,16 @@
+// src/features/MapView/MapView.tsx
 import { useEffect, useRef, useState } from "react";
-import {
-  MapContainer,
-  TileLayer,
-  Polyline,
-} from "react-leaflet";
+import { MapContainer, TileLayer, Polyline } from "react-leaflet";
 import { type LatLngExpression } from "leaflet";
-import { point as turfPoint } from "@turf/helpers";
-import along from "@turf/along";
-import bearing from "@turf/bearing";
-
 import { useGps } from "../../contexts/GpsContext";
 import { getRouteByIndex } from "../../services/useRouteData";
 import { fetchSnappedRoute } from "../../utils/fetchRouteSnap";
-import { DISTANCE_UNIT, DEFAULT_CENTER } from "../../config/map";
-import { smoothAngle } from "../../utils/angle";
-
 import Car from "../Car/Car";
-import DashboardPanel from "../Dashboard/DashboardPanel";
-import FollowCarControl from "../FollowCarControl/FollowCarControl";
-import StopFollowOnZoom from "../StopFollowOnZoom/StopFollowOnZoom";
-
 import styles from "./MapView.module.scss";
+import DashboardPanel from "../Dashboard/DashboardPanel";
+import { useCarAnimation } from "../../hooks/useCarAnimation";
+import StopFollowOnZoom from "../StopFollowOnZoom/StopFollowOnZoom";
+import FollowCarControl from "../FollowCarControl/FollowCarControl";
 
 export default function MapView() {
   const { selectedRouteIndex, setSelectedRouteIndex } = useGps();
@@ -30,20 +20,30 @@ export default function MapView() {
   const speedRef = useRef(speedKmh);
 
   const [followCar, setFollowCar] = useState(true);
-  const [carPosition, setCarPosition] = useState<[number, number] | null>(null);
-  const [carAngle, setCarAngle] = useState(0);
   const [roadCoords, setRoadCoords] = useState<[number, number][]>([]);
   const [tempoParado, setTempoParado] = useState(0);
   const [tempoRodando, setTempoRodando] = useState(0);
+  const [carAngle, setCarAngle] = useState(0);
+  const [carPosition, setCarPosition] = useState<[number, number] | null>(null);
 
-  const animationRef = useRef<number | null>(null);
-  const distanceRef = useRef(0);
-  const prevTimeRef = useRef<number | null>(null);
-  const angleRef = useRef(0);
-  const totalDistanceRef = useRef(0);
-  const routeLineRef = useRef<any>(null);
+  const {
+    routeLineRef,
+    totalDistanceRef,
+    animationRef,
+    prevTimeRef,
+    handlePlay,
+    handlePause,
+    handleReset,
+  } = useCarAnimation({
+    speedRef,
+    setTempoParado,
+    setTempoRodando,
+    setCarAngle,
+    setCarPosition,
+    roadCoords,
+  });
 
-  const center: LatLngExpression = roadCoords[0] || DEFAULT_CENTER;
+  const center: LatLngExpression = roadCoords[0] || [-23.963214, -46.28054];
 
   useEffect(() => {
     speedRef.current = speedKmh;
@@ -58,92 +58,19 @@ export default function MapView() {
 
     if (rawPoints.length < 2) return;
 
-    fetchSnappedRoute(rawPoints).then(({ snappedCoords, snappedLine, totalKm }) => {
-      setRoadCoords(snappedCoords);
-      routeLineRef.current = snappedLine;
-      totalDistanceRef.current = totalKm;
+    fetchSnappedRoute(rawPoints).then(
+      ({ snappedCoords, snappedLine, totalKm }) => {
+        setRoadCoords(snappedCoords);
+        routeLineRef.current = snappedLine;
+        totalDistanceRef.current = totalKm;
 
-      distanceRef.current = 0;
-      prevTimeRef.current = null;
-      angleRef.current = 0;
+        animationRef.current = null;
+        prevTimeRef.current = null;
 
-      handleReset();
-    });
+        handleReset();
+      }
+    );
   }, [route]);
-
-  function animate(ts: number) {
-    if (!routeLineRef.current) return;
-
-    if (!prevTimeRef.current) prevTimeRef.current = ts;
-    const delta = (ts - prevTimeRef.current) / 1000;
-    prevTimeRef.current = ts;
-
-    const speed = speedRef.current / 3600;
-    distanceRef.current += speed * delta;
-
-    if (speedRef.current < 2) {
-      setTempoParado((prev) => prev + delta);
-    } else {
-      setTempoRodando((prev) => prev + delta);
-    }
-
-    if (distanceRef.current > totalDistanceRef.current) {
-      cancelAnimationFrame(animationRef.current!);
-      animationRef.current = null;
-      return;
-    }
-
-    const curr = along(routeLineRef.current, distanceRef.current, DISTANCE_UNIT);
-    const prev = along(
-      routeLineRef.current,
-      Math.max(distanceRef.current - 0.0001, 0),
-      DISTANCE_UNIT
-    );
-    const next = along(
-      routeLineRef.current,
-      Math.min(distanceRef.current + 0.0001, totalDistanceRef.current),
-      DISTANCE_UNIT
-    );
-
-    const rawAngle = bearing(
-      turfPoint(prev.geometry.coordinates),
-      turfPoint(next.geometry.coordinates)
-    );
-    angleRef.current = smoothAngle(angleRef.current, rawAngle);
-
-    const [lng, lat] = curr.geometry.coordinates;
-    setCarPosition([lat, lng]);
-    setCarAngle(angleRef.current);
-
-    animationRef.current = requestAnimationFrame(animate);
-  }
-
-  function handlePlay() {
-    if (!animationRef.current) {
-      prevTimeRef.current = null;
-      animationRef.current = requestAnimationFrame(animate);
-    }
-  }
-
-  function handlePause() {
-    if (animationRef.current) {
-      cancelAnimationFrame(animationRef.current);
-      animationRef.current = null;
-    }
-  }
-
-  function handleReset() {
-    distanceRef.current = 0;
-    prevTimeRef.current = null;
-    angleRef.current = 0;
-    setTempoParado(0);
-    setTempoRodando(0);
-    if (routeLineRef.current) {
-      const [lng, lat] = routeLineRef.current.geometry.coordinates[0];
-      setCarPosition([lat, lng]);
-      setCarAngle(0);
-    }
-  }
 
   return (
     <div className={styles.wrapper}>
