@@ -1,7 +1,3 @@
-Claro! Aqui está um exemplo de `README.md` completo e bem estruturado para o seu projeto de **simulador de rastreamento veicular**, com foco técnico e organizacional:
-
----
-
 ```markdown
 # 🚚 Softtruck Front-End Tracking
 
