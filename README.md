@@ -1,13 +1,3 @@
-Claro! Aqui está a versão **atualizada e completa** do seu `README.md`, agora com:
-
-- Checklist técnico completo
-- Fluxo real do sistema
-- Referência à API externa (OpenRouteService)
-- Explicação sobre `.env`
-- Justificativas das bibliotecas usadas
-
----
-
 ````markdown
 # 🚚 Softtruck Frontend Tracking
 
