@@ -41,7 +41,7 @@ export function SimulationControls({
           padding: 1,
           position: "fixed",
           right: 16,
-          top: 16,
+          top: 160,
           zIndex: 1500,
         }}
       >
@@ -73,8 +73,23 @@ export function SimulationControls({
   }
 
   return (
-    <Stack spacing={1}>
-      <ButtonGroup fullWidth variant="outlined">
+    <Stack
+      spacing={1}
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        padding: 1,
+      }}
+    >
+      <ButtonGroup
+        fullWidth
+        variant="outlined"
+        sx={{
+          display: "flex",
+          justifyContent: "space-around",
+        }}
+      >
         <Tooltip title={t("simulation.start")}>
           <IconButton onClick={onPlay}>
             <PlayArrowIcon />

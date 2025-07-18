@@ -8,7 +8,6 @@ import {
 } from "@mui/material";
 import { useState } from "react";
 import {
-  RouteSelector,
   SimulationControls,
   SpeedControlPanel,
   LanguageSelector,
@@ -34,8 +33,6 @@ interface DashboardPanelProps {
 export function DashboardPanel({
   speedKmh,
   onChange,
-  currentRouteIndex,
-  onRouteChange,
   onCenterMap,
   tempoParado,
   tempoRodando,
@@ -47,36 +44,9 @@ export function DashboardPanel({
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [expanded, setExpanded] = useState(false);
 
-  const handleRouteChange = (event: any) => {
-    const idx = Number(event.target.value);
-    if (!isNaN(idx)) {
-      onRouteChange(idx);
-    }
-  };
-
   if (isMobile) {
     return (
       <>
-        <Box
-          sx={{
-            position: "fixed",
-            top: 16,
-            left: "50%",
-            transform: "translateX(-50%)",
-            zIndex: 1000,
-            backgroundColor: "#fff",
-            borderRadius: 2,
-            boxShadow: 3,
-            px: 2,
-            py: 1,
-          }}
-        >
-          <RouteSelector
-            current={currentRouteIndex}
-            onChange={handleRouteChange}
-          />
-        </Box>
-
         <Box
           sx={{
             position: "fixed",
@@ -181,26 +151,6 @@ export function DashboardPanel({
         >
           <SpeedControlPanel value={speedKmh} onChange={onChange} />
         </Stack>
-      </Box>
-
-      <Box
-        sx={{
-          position: "fixed",
-          top: 16,
-          left: "50%",
-          transform: "translateX(-50%)",
-          zIndex: 1000,
-          backgroundColor: "#fff",
-          borderRadius: 2,
-          boxShadow: 3,
-          px: 2,
-          py: 1,
-        }}
-      >
-        <RouteSelector
-          current={currentRouteIndex}
-          onChange={handleRouteChange}
-        />
       </Box>
 
       <Box
