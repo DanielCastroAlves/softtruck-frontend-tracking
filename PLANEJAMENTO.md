@@ -1,103 +1,128 @@
-
+````markdown
 # 🧠 Planejamento de Desenvolvimento — Desafio Front-End Softruck
 
-Documento com o planejamento das etapas de desenvolvimento do desafio técnico da Softruck, com foco em organização, clareza de escopo e justificativa das decisões técnicas adotadas.
+Este documento representa o levantamento e as decisões de planejamento tomadas com base no enunciado do teste técnico da Softruck Brasil. O objetivo é mostrar como o desafio foi compreendido, decomposto em tarefas e estruturado tecnicamente para garantir clareza, escalabilidade e foco nas entregas solicitadas.
 
 ---
 
-## ⚙️ Stack Tecnológica
+## 📋 Interpretação do Enunciado
 
-| Tecnologia     | Justificativa |
-|----------------|---------------|
-| **React** + **Vite** | Framework moderno e amplamente usado. Vite traz velocidade e boa experiência de desenvolvimento. |
-| **TypeScript** | Tipagem estática para evitar erros e manter o código mais seguro e legível. |
-| **Leaflet.js** | Biblioteca open-source leve e gratuita para renderização de mapas interativos, ideal para evitar dependência de tokens. |
-| **@turf/**     | Biblioteca geoespacial usada para cálculos como direção, distância e interpolação sobre rotas. |
-| **react-i18next** | Solução madura e flexível para internacionalização. |
-| **SCSS**       | Permite organizar os estilos com mais clareza, usando variáveis, aninhamento e reaproveitamento. |
-| **MUI (Material UI)** | Utilizado para agilizar o desenvolvimento da interface com componentes prontos, responsivos e acessíveis. Permite focar mais nas funcionalidades específicas do desafio. |
+### Requisitos principais
 
----
+- Criar uma **tela com mapa**
+- Animação de **carro com sprite** baseada na **direção**
+- Basear-se em **dados geográficos e imagem sprite fornecida**
 
-## 🧱 Por que MUI
+### Tarefas bônus
 
-A escolha do MUI foi estratégica:
+- Utilizar a **velocidade** real do veículo para controlar o tempo de deslocamento
+- Permitir o usuário **selecionar qual trajeto** será animado
 
-- Reduz tempo gasto com estilização manual de botões, inputs e layout.
-- Oferece responsividade e visual consistente, alinhado ao que a vaga espera.
-- Ajuda a manter o foco no que mais importa neste desafio: a simulação baseada em GPS.
+### Critérios de avaliação
+
+- Internacionalização dos textos
+- Utilização de bons padrões de código
+- Utilização de SCSS
+- Versionamento claro e progressivo
 
 ---
 
-## 🗂️ Estrutura de Pastas Planejada
+## 🧱 Quebra do Problema em Partes
 
-```
+1. **Mapa interativo com rota**  
+   → Exibir um mapa e desenhar rotas a partir dos dados GPS
+
+2. **Animação do carro com direção**  
+   → Mostrar um carro animado seguindo a rota e girando de acordo com o ângulo
+
+3. **Velocidade dinâmica**  
+   → Ajustar a animação à velocidade real entre os pontos GPS
+
+4. **Seleção de trajeto**  
+   → Ter uma interface que permita escolher entre múltiplas rotas
+
+5. **Interface de controle (HUD e botões)**  
+   → Exibir dados como velocidade, tempo, ângulo, play/pause/reset
+
+6. **Internacionalização**  
+   → Permitir trocar idioma (PT ↔ EN) sem recarregar a página
+
+7. **Boas práticas de arquitetura**  
+   → Separar componentes, hooks, contextos e estilos de forma escalável
+
+---
+
+## 🧠 Decisões Técnicas e Justificativas
+
+| Tecnologia               | Motivo da escolha                                                       |
+| ------------------------ | ----------------------------------------------------------------------- |
+| **React + Vite**         | Stack moderna, rápida, com suporte completo a TypeScript e excelente DX |
+| **TypeScript**           | Segurança, legibilidade e intellisense                                  |
+| **Leaflet.js**           | Biblioteca leve e gratuita para mapas, sem tokens externos obrigatórios |
+| **@turf/**               | Cálculos de rota, direção, distância e suavização com precisão          |
+| **SCSS Modules**         | Organização local de estilos por componente                             |
+| **MUI (Material UI)**    | Rapidez no desenvolvimento de UI responsiva e acessível                 |
+| **react-i18next**        | Biblioteca madura para internacionalização e fallback automático        |
+| **OpenRouteService API** | Utilizada opcionalmente para "snapping" realista das rotas no mapa      |
+
+---
+
+## 📁 Organização Planejada
+
+```bash
 src/
-├── assets/              # Sprite sheet e imagens
-├── components/          # Componentes reutilizáveis (Car, MapView, HUD, etc.)
-├── contexts/            # Estado global da simulação
-├── data/                # Arquivos JSON com os trajetos
-├── i18n/                # Configurações e arquivos de tradução
-├── styles/              # Estilos organizados por componente (em SCSS)
-├── App.tsx              # Componente raiz
-└── main.tsx             # Ponto de entrada
+├── assets/               # Sprite do carro
+├── components/           # Car, MapView, HUD, Controles
+├── contexts/             # GPS e simulação (via Context API)
+├── data/                 # JSON com pontos GPS
+├── hooks/                # useCarAnimation para controlar movimento
+├── services/             # Carregamento e seleção de rotas
+├── utils/                # Cálculos, snapping, formatação
+├── i18n/                 # Traduções pt/en
+├── types/                # Tipagens customizadas
+└── styles/               # SCSS modularizado (dentro de componentes)
+```
+````
+
+---
+
+## 🧩 Etapas previstas (em ordem lógica)
+
+1. Setup inicial com Vite + React + TS + SCSS
+2. Renderizar o mapa com rota estática
+3. Criar animação do carro com sprite baseado na direção (bearing)
+4. Implementar lógica de movimentação com base em velocidade real
+5. Criar painel com controles (play/pause/reset + HUD + seletor de rota)
+6. Implementar internacionalização com `react-i18next`
+7. Integrar API do ORS (opcional)
+8. Refatorar estilos para SCSS modules
+9. Revisar responsividade e refinar UI
+
+---
+
+## 🔄 Versionamento e Padrões
+
+- Commits com convenção semântica (`feat:`, `fix:`, `docs:`, `refactor:` etc.)
+- Separação clara entre estrutura, lógica e estilos
+- Manutenção da coesão por responsabilidade (SRP)
+
+---
+
+## 🧭 Resultado Esperado
+
+Um simulador veicular funcional que demonstra:
+
+- Compreensão do problema e domínio técnico
+- Capacidade de decompor tarefas e organizá-las
+- Solução fluida, performática e escalável
+- Interface responsiva e internacionalizada
+
+---
+
+## 📝 Observações Finais
+
+O planejamento acima foi usado como guia, com espaço para adaptações conforme surgiram necessidades (ex: detecção de paradas, HUD mais avançado, snapping com ORS). A documentação, código-fonte e estrutura refletem esse raciocínio técnico progressivo.
+
 ```
 
----
-
-## 🔁 Versionamento
-
-O projeto será versionado usando convenções semânticas nos commits:
-
-- `feat:` para novas funcionalidades
-- `fix:` para correções
-- `docs:` para documentação
-- `style:` para mudanças de estilo e SCSS
-- `chore:` para configuração do projeto
-
----
-
-## 📱 Responsividade e Mobile-First
-
-A interface será pensada com foco mobile-first, garantindo boa experiência em telas menores. O uso do MUI facilita essa abordagem por já trazer suporte a breakpoints e responsividade nativa nos componentes.
-
----
-
-## 🧩 Etapas do Desenvolvimento
-
-1. **Setup inicial**
-   - Criar o projeto com Vite, React e TypeScript.
-   - Instalar as bibliotecas principais (Leaflet, Turf, MUI, i18n, SCSS).
-
-2. **Documentação**
-   - Criar os arquivos `REQUISITOS.md` e `PLANEJAMENTO.md`.
-
-3. **Renderização do mapa**
-   - Exibir o mapa com base nos dados de rota do JSON.
-   - Gerar a rota usando LineString com Turf.
-
-4. **Animação do veículo**
-   - Criar o componente do carro com base em uma sprite sheet.
-   - Sincronizar com direção (ângulo) usando os dados GPS.
-
-5. **Controles e HUD**
-   - Play/Pause, reset e ajuste de velocidade.
-   - Exibir informações em tempo real: velocidade, direção e horário.
-
-6. **Troca de rota (tarefa bônus)**
-   - Permitir selecionar qual rota será exibida no momento.
-
-7. **Internacionalização**
-   - Implementar troca entre português e inglês com react-i18next.
-
-8. **Estilização com SCSS**
-   - Refatorar estilos para SCSS com separação por componente.
-
-9. **Refino final**
-   - Ajustes visuais, testes, melhoria na animação e responsividade geral.
-
----
-
-## 📌 Observações
-
-Este planejamento serve como guia de desenvolvimento. Durante a execução, melhorias ou ajustes pontuais podem ser feitos com base em testes, desempenho ou clareza de código.
+```
