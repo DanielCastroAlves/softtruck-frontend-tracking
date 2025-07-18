@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { MapContainer, TileLayer, Polyline } from "react-leaflet";
+import { MapContainer, TileLayer, Polyline, CircleMarker } from "react-leaflet";
 import { type LatLngExpression } from "leaflet";
 import { lineString } from "@turf/helpers";
 import length from "@turf/length";
@@ -12,7 +12,7 @@ import {
   FollowCarControl,
   RouteMarkers,
   StopFollowOnZoom,
-} from "../../components/index";
+} from "../../components/";
 import styles from "./MapView.module.scss";
 import { useCarAnimation } from "../../hooks/useCarAnimation";
 import { Box, Button, Typography, Stack } from "@mui/material";
@@ -62,22 +62,20 @@ export default function MapView() {
   useEffect(() => {
     if (!route) return;
 
-    const rawPoints = route.gps
-      .filter((p) => p.speed! > 0.5)
-      .map((p) => [p.longitude, p.latitude]) as [number, number][];
-
-    const rawLatLng = rawPoints.map(([lng, lat]) => [lat, lng]) as [
+    const pontos = route.gps.map((p) => [p.longitude, p.latitude]) as [
       number,
       number
     ][];
 
-    if (rawPoints.length < 2) return;
+    const latLng = pontos.map(([lng, lat]) => [lat, lng]) as [number, number][];
+
+    if (pontos.length < 1) return;
 
     const usarReal = async () => {
       try {
         if (modoReal) {
-          setRoadCoords(rawLatLng);
-          routeLineRef.current = lineString(rawPoints);
+          setRoadCoords(latLng);
+          routeLineRef.current = lineString(pontos);
           totalDistanceRef.current = length(
             routeLineRef.current,
             DISTANCE_UNIT
@@ -86,7 +84,11 @@ export default function MapView() {
           prevTimeRef.current = null;
           handleReset();
         } else {
-          const res = await fetchSnappedRoute(rawPoints);
+          const pontosFiltrados = route.gps
+            .filter((p) => p.speed && p.speed > 0.5)
+            .map((p) => [p.longitude, p.latitude]) as [number, number][];
+
+          const res = await fetchSnappedRoute(pontosFiltrados);
           setRoadCoords(res.snappedCoords);
           routeLineRef.current = res.snappedLine;
           totalDistanceRef.current = res.totalKm;
@@ -98,8 +100,8 @@ export default function MapView() {
         console.warn("Falha ao usar modo BETA, voltando para modo REAL:", e);
         setModoReal(true);
         setSnapDisponivel(false);
-        setRoadCoords(rawLatLng);
-        routeLineRef.current = lineString(rawPoints);
+        setRoadCoords(latLng);
+        routeLineRef.current = lineString(pontos);
         totalDistanceRef.current = length(routeLineRef.current, DISTANCE_UNIT);
         animationRef.current = null;
         prevTimeRef.current = null;
@@ -170,9 +172,19 @@ export default function MapView() {
             attribution="&copy; OpenStreetMap contributors"
           />
 
-          {roadCoords.length > 1 && (
+          {roadCoords.length > 1 ? (
             <Polyline positions={roadCoords} color="blue" weight={4} />
-          )}
+          ) : roadCoords.length === 1 ? (
+            <CircleMarker
+              center={roadCoords[0]}
+              radius={6}
+              pathOptions={{
+                color: "blue",
+                fillColor: "blue",
+                fillOpacity: 0.6,
+              }}
+            />
+          ) : null}
 
           <StopFollowOnZoom onStop={() => setFollowCar(false)} />
 
