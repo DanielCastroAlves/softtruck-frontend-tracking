@@ -12,12 +12,12 @@ import {
   FollowCarControl,
   RouteMarkers,
   StopFollowOnZoom,
-} from "../index";
+} from "../../components/index";
 import styles from "./MapView.module.scss";
 import { useCarAnimation } from "../../hooks/useCarAnimation";
 import { Box, Button, Typography, Stack } from "@mui/material";
-import { RouteSelector } from "../Dashboard/components/index";
 import { DISTANCE_UNIT } from "../../config/map";
+import { RouteSelector } from "../../components/Dashboard/components";
 
 export default function MapView() {
   const { selectedRouteIndex, setSelectedRouteIndex } = useGps();
