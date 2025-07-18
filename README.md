@@ -14,8 +14,6 @@ Desenvolvido como solução ao **teste técnico de front-end da Softruck Brasil*
 - Utilização da **velocidade real** do veículo para controle da animação
 - **Seleção dinâmica de trajetos** pelo usuário
 
-📄 Arquivo original do desafio: [`Teste Desenvolvimento frontend.pdf`](./Teste%20Desenvolvimento%20frontend.pdf)
-
 ---
 
 ## ✅ Funcionalidades entregues
