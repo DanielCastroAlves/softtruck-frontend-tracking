@@ -4,6 +4,7 @@ import CenterMapButton from "./CenterMapButton";
 import SimulationControls from "./SimulationControls";
 import HUD from "../HUD/HUD";
 import SpeedControlPanel from "./SpeedControlPanel";
+import LanguageSelector from "./LanguageSelector";
 
 interface DashboardPanelProps {
   speedKmh: number;
@@ -46,6 +47,7 @@ export default function DashboardPanel({
       }}
     >
       <Stack spacing={2} divider={<Divider flexItem />}>
+        <LanguageSelector />
         <SpeedControlPanel value={speedKmh} onChange={onSpeedChange} />
         <RouteSelector
           current={currentRouteIndex}
