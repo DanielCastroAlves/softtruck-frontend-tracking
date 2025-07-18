@@ -12,6 +12,9 @@ import DashboardPanel from "../Dashboard/DashboardPanel";
 import { useCarAnimation } from "../../hooks/useCarAnimation";
 import StopFollowOnZoom from "../StopFollowOnZoom/StopFollowOnZoom";
 import FollowCarControl from "../FollowCarControl/FollowCarControl";
+import RouteMarkers from "../RouteMarkers/RouteMarkers";
+import RouteSelector from "../Dashboard/RouteSelector";
+import { Box } from "@mui/material";
 
 export default function MapView() {
   const { selectedRouteIndex, setSelectedRouteIndex } = useGps();
@@ -75,6 +78,27 @@ export default function MapView() {
 
   return (
     <div className={styles.wrapper}>
+      <Box
+        sx={{
+          position: "fixed",
+          top: 16,
+          left: "50%",
+          transform: "translateX(-50%)",
+          zIndex: 1100,
+          backgroundColor: "#fff",
+          borderRadius: 2,
+          boxShadow: 3,
+          px: 2,
+          py: 1,
+          minWidth: 300, // ajuste para seu layout
+        }}
+      >
+        <RouteSelector
+          current={selectedRouteIndex}
+          onChange={setSelectedRouteIndex}
+        />
+      </Box>
+
       <div className={styles.mapArea}>
         <MapContainer
           center={center}
@@ -82,6 +106,8 @@ export default function MapView() {
           scrollWheelZoom
           className={styles.map}
         >
+          <RouteMarkers coords={roadCoords} />
+
           <TileLayer
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             attribution="&copy; OpenStreetMap contributors"
@@ -100,7 +126,6 @@ export default function MapView() {
             </>
           )}
         </MapContainer>
-        
       </div>
 
       <div className={styles.dashboardArea}>
@@ -108,11 +133,6 @@ export default function MapView() {
           speedKmh={speedKmh}
           onChange={(_: Event, val: number | number[]) =>
             setSpeedKmh(Array.isArray(val) ? val[0] : val)
-          }
-          currentRouteIndex={selectedRouteIndex}
-          totalRoutes={5}
-          onNextRoute={() =>
-            setSelectedRouteIndex((selectedRouteIndex + 1) % 5)
           }
           onCenterMap={() => setFollowCar(true)}
           tempoParado={tempoParado}

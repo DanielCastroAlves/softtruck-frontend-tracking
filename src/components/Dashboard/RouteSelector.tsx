@@ -1,23 +1,39 @@
-import { Box, Typography, Button } from "@mui/material";
+// src/components/Dashboard/RouteSelector.tsx
+import { Box, Select, MenuItem, FormControl, InputLabel } from "@mui/material";
 import { useTranslation } from "react-i18next";
+import gpsData from "../../data/frontend_data_gps.json";
+import { formatDuration, formatKm } from "../../utils/format";
 
 interface RouteSelectorProps {
   current: number;
-  total: number;
-  onNext: () => void;
+  onChange: (index: number) => void;
 }
 
-export default function RouteSelector({ current, total, onNext }: RouteSelectorProps) {
+
+
+export default function RouteSelector({ current, onChange }: RouteSelectorProps) {
   const { t } = useTranslation();
+  const routes = gpsData.courses;
 
   return (
-    <Box mb={2} display="flex" alignItems="center" gap={1}>
-      <Typography variant="subtitle2">
-        {t("controls.route.label")} ({current + 1}/{total})
-      </Typography>
-      <Button variant="outlined" size="small" onClick={onNext}>
-        {t("controls.route.next")}
-      </Button>
+    <Box>
+      <FormControl size="small" fullWidth>
+        <InputLabel id="route-select-label">
+          {t("controls.route.label")}
+        </InputLabel>
+        <Select
+          labelId="route-select-label"
+          value={current}
+          label={t("controls.route.label")}
+          onChange={(e) => onChange(Number(e.target.value))}
+        >
+          {routes.map((route: any, idx: number) => (
+            <MenuItem key={idx} value={idx}>
+              Rota {idx + 1} – {formatKm(route.distance)}, {formatDuration(route.duration)}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
     </Box>
   );
 }
