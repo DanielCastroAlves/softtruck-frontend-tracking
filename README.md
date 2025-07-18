@@ -1,162 +1,137 @@
-````markdown
 # 🚚 Softtruck Frontend Tracking
 
-Simulador visual e interativo de rastreamento veicular baseado em dados GPS reais, com animação sprite fluida, seleção de rotas, controle de velocidade, internacionalização e painel informativo.
+Simulador visual e interativo de rastreamento veicular baseado em dados GPS reais. A aplicação exibe um carro animado em sprite 3D, movendo-se sobre o mapa com base na direção e velocidade reais, com HUD informativo, seleção de trajetos, suporte multilíngue e painel responsivo.
 
 Desenvolvido como solução ao **teste técnico de front-end da Softruck Brasil**.
 
 ---
 
-## ✅ Objetivo do desafio
+## 🎯 Objetivo do teste
 
-> Criar uma tela com um mapa que faça a animação da imagem no sprite com base na direção do carro.
->
-> Tarefas bônus:
->
-> - Utilizar a **velocidade** do veículo para controlar a animação
-> - Permitir ao usuário selecionar qual **trajeto** será exibido
+> Criar uma tela com um mapa que faça a animação da imagem no sprite baseada na direção do carro.
 
----
+### Tarefas bônus incluídas:
+- Utilização da **velocidade real** do veículo para controle da animação
+- **Seleção dinâmica de trajetos** pelo usuário
 
-## 🧪 Checklist técnico
-
-| Requisito                                      | Status   |
-| ---------------------------------------------- | -------- |
-| Mapa com sprite animado por direção            | ✅ Feito |
-| Velocidade real afeta deslocamento             | ✅ Feito |
-| Seleção de trajetos dinâmicos                  | ✅ Feito |
-| Internacionalização (pt/en)                    | ✅ Feito |
-| SCSS modularizado                              | ✅ Feito |
-| Padrões de código e componentização            | ✅ Feito |
-| Uso de versionamento com commits bem definidos | ✅ Feito |
-| Justificativa técnica das escolhas no README   | ✅ Feito |
-| Uso opcional de API externa (OpenRouteService) | ✅ Feito |
+📄 Arquivo original do desafio: [`Teste Desenvolvimento frontend.pdf`](./Teste%20Desenvolvimento%20frontend.pdf)
 
 ---
 
-## 🚀 Como rodar o projeto
+## ✅ Funcionalidades entregues
+
+- [x] Sprite animado com 120 frames e rotação baseada na direção real
+- [x] Animação proporcional à **velocidade do trajeto**
+- [x] Troca entre múltiplos percursos com seletor intuitivo
+- [x] HUD com velocidade, tempo parado, tempo rodando e ângulo de direção
+- [x] Interface multilíngue: 🇧🇷 Português, 🇺🇸 Inglês e 🇪🇸 Espanhol
+- [x] Painel de controle e HUD responsivos (mobile / desktop)
+- [x] Estilos modulares com SCSS
+- [x] Arquitetura escalável com contextos, hooks e paginação dedicada
+
+---
+
+## 🚀 Como executar o projeto
 
 ```bash
-# 1. Clone o repositório
-git clone https://github.com/seu-usuario/softtruck-frontend-tracking.git
+# Clone o repositório
+git clone https://github.com/DanielCastroAlves/softtruck-frontend-tracking.git
+
 cd softtruck-frontend-tracking
 
-# 2. Instale as dependências
+# Instale as dependências
 npm install
 
-# 3. Rode em ambiente de desenvolvimento
+# Rode o servidor de desenvolvimento
 npm run dev
 ```
-````
 
 > 💡 Requisitos: Node.js 18+
 
 ---
 
-## 🔐 Variáveis de ambiente
+## 🔀 Modos de execução
 
-Se quiser utilizar o **snapping de rota via OpenRouteService (ORS)**, crie um arquivo `.env` na raiz com:
+O projeto pode funcionar em **dois modos**:
 
-```bash
-VITE_ORS_API_KEY=your_api_key_here
-```
+- ✅ **Modo real** (ativo por padrão): utiliza os pontos brutos do GPS como vieram no JSON.
+- 🧪 **Modo beta** (opcional): aplica "snapping" via OSRM para suavizar o trajeto com base na malha viária real.
 
-> O uso da API do ORS é **opcional**. O sistema funciona mesmo sem esse recurso.
+> Este modo é **experimental**: tenta suavizar a rota alinhando os pontos às ruas reais com OSRM, mas pode gerar resultados imprecisos e não é o padrão do sistema.
 
----
-
-## 🔍 Tecnologias utilizadas
-
-| Tecnologia              | Justificativa                                                                  |
-| ----------------------- | ------------------------------------------------------------------------------ |
-| React + Vite            | Performance e simplicidade no desenvolvimento com TypeScript moderno           |
-| Leaflet + React-Leaflet | Mapa interativo sem dependência de tokens pagos (ex: Mapbox)                   |
-| Turf.js                 | Cálculo de distância, suavização e direção geográfica com precisão             |
-| SCSS Modules            | Organização local dos estilos e reaproveitamento com isolamento por componente |
-| Material UI (MUI)       | Componentes visuais prontos e responsivos, com visual consistente              |
-| react-i18next           | Internacionalização profissional com suporte a fallback e namespaces           |
 
 ---
 
-## 🌐 Internacionalização
+## 🧠 Tecnologias e decisões
 
-A interface possui suporte a dois idiomas:
+| Tecnologia              | Justificativa |
+|-------------------------|---------------|
+| **React + Vite**        | Setup moderno com ótimo desempenho e suporte nativo a TypeScript |
+| **Leaflet + React-Leaflet** | Renderização de mapas 2D sem dependência de tokens pagos (ex: Mapbox) |
+| **Turf.js**             | Cálculo de distância, interpolação e ângulo com precisão |
+| **Material UI (MUI)**   | Componentes acessíveis e responsivos com baixo esforço |
+| **SCSS Modules**        | Organização local de estilos com escopo isolado |
+| **react-i18next**       | Internacionalização robusta com fallback e múltiplos idiomas |
+| **OSRM API (beta)**     | Tentativa de suavização de rotas via rede viária real (não finalizada) |
+
+---
+
+## 🌐 Idiomas suportados
 
 - 🇧🇷 Português
 - 🇺🇸 Inglês
+- 🇪🇸 Espanhol
 
-Você pode alternar o idioma usando o seletor no painel lateral.
+Troque o idioma a qualquer momento usando o seletor no painel lateral.
 
 ---
 
-## 📁 Estrutura de pastas
+## 📁 Estrutura do projeto
 
-```bash
+```
 src/
-├── App.tsx
-├── main.tsx
-├── assets/
-│   └── cars.png
-├── components/
-│   ├── Car/
-│   ├── Dashboard/
-│   │   ├── components/
-│   │   └── styles/
-│   ├── HUD/
-│   ├── MapView/
-│   ├── RouteMarkers/
-│   ├── FollowCarControl/
-│   └── StopFollowOnZoom/
-├── config/
-├── contexts/
-├── data/
-│   └── frontend_data_gps.json
-├── hooks/
-│   └── useCarAnimation.ts
-├── services/
-│   └── useRouteData.ts
-├── utils/
-│   ├── fetchRouteSnap.ts     
-│   ├── angle.ts
-│   └── format.ts
-├── i18n/
-│   ├── en.json
-│   └── pt.json
-└── types/
+├── assets/                # Sprites e ícones
+├── components/            # Car, HUD, Painel, Botões, etc.
+├── page/MapView/          # Tela principal com mapa e lógica de simulação
+├── contexts/              # GpsContext e SimulationContext
+├── data/                  # Arquivos JSON e mock de rotas
+├── hooks/                 # useCarAnimation (movimentação)
+├── services/              # Carregamento de rotas
+├── utils/                 # Cálculos, formatação e snapping
+├── config/                # Configurações fixas (ex: map.ts)
+├── i18n/                  # Traduções pt, en, es
+├── types/                 # Tipagens globais
+└── main.tsx               # Inicialização do app
 ```
 
 ---
 
-## 🔁 Fluxo do sistema
+## 📊 Fluxo do sistema
 
-1. **Carga de dados GPS**: JSON simulado com rotas e pontos
-2. **Seleção de rota**: via painel (`RouteSelector`)
-3. **Interpolação e rotação**: calculada com `turf.along` + `turf.bearing`
-4. **Sprite animado**: 120 frames para cada ângulo de direção, renderizado por `Car.tsx`
-5. **Detecção de paradas**: velocidade zero por tempo mínimo gera marcador vermelho
-6. **HUD em tempo real**: velocidade, tempo rodando/parado, ângulo atual
-7. **Controle do mapa**: seguir veículo, pausar, resetar, mudar idioma
+1. Dados GPS são carregados (modo real ou beta)
+2. Rota é renderizada no mapa e o usuário pode trocá-la dinamicamente
+3. O carro é animado com base na direção (`turf.bearing`) 
+4. HUD exibe status: tempo rodando, velocidade 
+5. Controles permitem centralizar, pausar, trocar rota e mudar idioma
 
 ---
 
-## 📄 Planejamento
+## 📄 Planejamento e arquitetura
 
-Ver arquivo [`PLANEJAMENTO.md`](./PLANEJAMENTO.md) para detalhes de decisões de arquitetura, tarefas e organização do desenvolvimento.
+As decisões técnicas, estruturação e etapas estão documentadas no arquivo:
+
+📁 [`PLANEJAMENTO.md`](./PLANEJAMENTO.md)
 
 ---
 
-## 📫 Contato
+## 👤 Autor
 
-Desenvolvido por Daniel Castro Alves
-📧 [danielvortex@hotmail.com](mailto:danielvortex@hotmail.com)
-🌐 [LinkedIn](https://www.linkedin.com/in/danielcfalves/)
+Desenvolvido por **Daniel Castro Alves**  
+📧 [danielvortex@hotmail.com](mailto:danielvortex@hotmail.com)  
+🔗 [linkedin.com/in/danielcfalves](https://linkedin.com/in/danielcfalves)
 
 ---
 
 ## 📝 Licença
 
-MIT License — Livre para uso, modificação e distribuição.
-
-```
-
-```
+MIT — livre para uso, modificação e distribuição.

@@ -34,7 +34,6 @@ export function DashboardPanel({
   speedKmh,
   onChange,
   onCenterMap,
-  tempoParado,
   tempoRodando,
   onPlay,
   onPause,
@@ -110,7 +109,6 @@ export function DashboardPanel({
             <LanguageSelector />
             <VehicleCard />
             <HUD
-              tempoParado={tempoParado}
               tempoRodando={tempoRodando}
               velocidade={speedKmh}
             />
@@ -151,7 +149,6 @@ export function DashboardPanel({
         <LanguageSelector />
         <VehicleCard />
         <HUD
-          tempoParado={tempoParado}
           tempoRodando={tempoRodando}
           velocidade={speedKmh}
         />
