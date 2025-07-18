@@ -3,49 +3,24 @@ import {
   MapContainer,
   TileLayer,
   Polyline,
-  useMap,
-  useMapEvents,
 } from "react-leaflet";
 import { type LatLngExpression } from "leaflet";
 import { point as turfPoint } from "@turf/helpers";
 import along from "@turf/along";
 import bearing from "@turf/bearing";
+
 import { useGps } from "../../contexts/GpsContext";
 import { getRouteByIndex } from "../../services/useRouteData";
 import { fetchSnappedRoute } from "../../utils/fetchRouteSnap";
-import { DISTANCE_UNIT } from "../../config/map";
+import { DISTANCE_UNIT, DEFAULT_CENTER } from "../../config/map";
+import { smoothAngle } from "../../utils/angle";
+
 import Car from "../Car/Car";
-import styles from "./MapView.module.scss";
 import DashboardPanel from "../Dashboard/DashboardPanel";
+import FollowCarControl from "../FollowCarControl/FollowCarControl";
+import StopFollowOnZoom from "../StopFollowOnZoom/StopFollowOnZoom";
 
-function smoothAngle(prev: number, next: number, factor = 0.2) {
-  const diff = ((((next - prev) % 360) + 540) % 360) - 180;
-  return (prev + diff * factor + 360) % 360;
-}
-
-function StopFollowOnZoom({ onStop }: { onStop: () => void }) {
-  useMapEvents({
-    zoomstart: onStop,
-    dragstart: onStop,
-  });
-  return null;
-}
-
-function FollowCarControl({
-  position,
-  followCar,
-}: {
-  position: LatLngExpression;
-  followCar: boolean;
-}) {
-  const map = useMap();
-  useEffect(() => {
-    if (followCar) {
-      map.setView(position, 17, { animate: true });
-    }
-  }, [position, followCar, map]);
-  return null;
-}
+import styles from "./MapView.module.scss";
 
 export default function MapView() {
   const { selectedRouteIndex, setSelectedRouteIndex } = useGps();
@@ -68,7 +43,7 @@ export default function MapView() {
   const totalDistanceRef = useRef(0);
   const routeLineRef = useRef<any>(null);
 
-  const center: LatLngExpression = roadCoords[0] || [-23.963214, -46.28054];
+  const center: LatLngExpression = roadCoords[0] || DEFAULT_CENTER;
 
   useEffect(() => {
     speedRef.current = speedKmh;
